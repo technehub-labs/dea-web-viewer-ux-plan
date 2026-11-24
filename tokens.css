@@ -1,0 +1,330 @@
+/* =============================================================================
+   DEA Design Tokens · v1.0 · 2026-11-24
+   -----------------------------------------------------------------------------
+   Single source of truth for every visual decision in the DEA Web Viewer
+   design. Both the plan (index.html) and the prototype (prototype.html)
+   consume this file; nothing else defines a colour, size or duration.
+
+   Three layers, consumed top-down:
+     1. PRIMITIVES  raw palette values (--teal-700, --gray-200). Reference
+                    these only to build semantic tokens.
+     2. SEMANTIC    intent-based roles (--text-primary, --bg-canvas,
+                    --brand, --layer-3-ink). What components consume.
+     3. (component) local, only where a role is unique to one component.
+
+   Conventions
+     · White-background, light theme only (color-scheme: light).
+     · Text tokens meet WCAG AA 4.5:1 on white; lines and edges meet 3:1.
+       Contrast for each token is noted where it matters.
+     · 4 px spacing grid; 13 px UI text; one type family (Geist) with a
+       matching mono (Geist Mono) for aliases, counts and code.
+     · Media queries cannot read custom properties, so the breakpoints are
+       documented at the bottom and written literally where used.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* ---------------------------------------------------------------------------
+     1 · PRIMITIVES — colour
+     ------------------------------------------------------------------------- */
+  --white: #FFFFFF;
+
+  /* Neutral — cool graphite. Steps are tuned for text (500/600) and
+     hairlines (200/300), not evenly spaced lightness. */
+  --gray-50:  #F7F9FA;
+  --gray-100: #F0F3F5;
+  --gray-200: #E3E8EC;
+  --gray-300: #C6D0D8;
+  --gray-400: #94A1AB;
+  --gray-500: #66757F;   /* 4.76:1 on white */
+  --gray-600: #55636E;   /* 6.18:1 */
+  --gray-700: #3B4852;   /* 9.40:1 */
+  --gray-800: #242F38;   /* 13.65:1 */
+  --gray-900: #141C23;   /* 17.21:1 */
+  --gray-950: #0B1116;
+
+  /* Brand — teal. #2DD4BF is the product's published accent (upstream
+     metamodel colour); on white it is decorative only (1.86:1). */
+  --teal-50:  #F0FDFA;
+  --teal-100: #CCFBF1;
+  --teal-200: #99F6E4;
+  --teal-300: #5EEAD4;
+  --teal-400: #2DD4BF;
+  --teal-500: #14B8A6;
+  --teal-600: #0D9488;   /* 3.74:1 — rings, focus, selection */
+  --teal-700: #0F766E;   /* 5.47:1 — accent text, primary fill */
+  --teal-800: #115E59;   /* 7.58:1 */
+  --teal-900: #134E4A;   /* 9.48:1 */
+
+  /* Status primitives */
+  --green-50: #F0FDF4;  --green-200: #BBF7D0;  --green-500: #22C55E;  --green-700: #15803D;
+  --amber-50: #FFFBEB;  --amber-200: #FDE68A;  --amber-500: #F59E0B;  --amber-600: #D97706;  --amber-700: #B45309;
+  --red-50:   #FEF2F2;  --red-200:   #FECACA;  --red-500:   #EF4444;  --red-700:   #B42318;
+  --blue-50:  #EFF6FF;  --blue-200:  #BFDBFE;  --blue-500:  #3B82F6;  --blue-700:  #1D4ED8;
+  --violet-50:#F5F3FF;  --violet-200:#DDD6FE;  --violet-500:#8B5CF6;  --violet-700: #6D28D9;
+
+  /* ---------------------------------------------------------------------------
+     2 · SEMANTIC — surfaces & text
+     ------------------------------------------------------------------------- */
+  --bg-app:          var(--gray-50);    /* chrome behind surfaces (bars, rail) */
+  --bg-canvas:       var(--white);      /* the canvas — always white */
+  --bg-surface:      var(--white);      /* cards, panels, dialogs */
+  --bg-surface-alt:  var(--gray-50);    /* subdued areas inside a surface */
+  --bg-sunken:       var(--gray-100);   /* wells, inputs at rest, kbd */
+  --bg-hover:        var(--gray-100);
+  --bg-active:       var(--gray-200);
+  --bg-selected:     var(--teal-50);
+  --bg-inverse:      var(--gray-900);   /* toasts, tooltips */
+
+  --text-primary:            var(--gray-900);
+  --text-secondary:          var(--gray-600);
+  --text-tertiary:           var(--gray-500);   /* on white / gray-50 only */
+  --text-disabled:           var(--gray-400);
+  --text-inverse:            var(--white);
+  --text-inverse-secondary:  var(--gray-200);
+  --text-brand:              var(--teal-700);
+  --text-link:               var(--teal-700);
+  --text-danger:             var(--red-700);
+
+  --border-subtle: var(--gray-200);     /* dividers, card edges */
+  --border-default: var(--gray-300);    /* inputs, chips */
+  --border-strong: var(--gray-400);     /* hovered controls */
+
+  /* ---------------------------------------------------------------------------
+     2 · SEMANTIC — brand & interaction
+     ------------------------------------------------------------------------- */
+  --brand:            var(--teal-700);
+  --brand-hover:      var(--teal-800);
+  --brand-active:     var(--teal-900);
+  --brand-soft:       var(--teal-50);   /* selection wash, active nav */
+  --brand-soft-hover: var(--teal-100);
+  --brand-border:     var(--teal-200);
+  --brand-ring:       var(--teal-600);  /* focus + selection ring, 3.74:1 */
+  --brand-bright:     var(--teal-400);  /* decorative fills only */
+  --on-brand:         var(--white);
+
+  --ring: 0 0 0 2px var(--bg-canvas), 0 0 0 4px var(--brand-ring);
+
+  /* Status roles: -ink (text/icon) · -soft (fill) · -line (edge) · -solid (dot) */
+  --success-ink: var(--green-700);  --success-soft: var(--green-50);
+  --success-line: var(--green-200); --success-solid: var(--green-500);
+  --warning-ink: var(--amber-700);  --warning-soft: var(--amber-50);
+  --warning-line: var(--amber-200); --warning-solid: var(--amber-500);
+  --danger-ink:  var(--red-700);    --danger-soft:  var(--red-50);
+  --danger-line:  var(--red-200);   --danger-solid:  var(--red-500);
+  --info-ink:    var(--blue-700);   --info-soft:    var(--blue-50);
+  --info-line:    var(--blue-200);  --info-solid:    var(--blue-500);
+  --violet-ink:  var(--violet-700); --violet-soft:  var(--violet-50);
+  --violet-line:  var(--violet-200);
+  --neutral-ink: var(--gray-600);   --neutral-soft: var(--gray-100);
+  --neutral-line:  var(--gray-200);  --neutral-solid: var(--gray-400);
+
+  /* Entity lifecycle → role. Quiet by default: "planned" is the majority
+     state and must not read as an alarm. */
+  --status-existing:          var(--success-ink);
+  --status-existing-extended: var(--violet-ink);
+  --status-scaffold:          var(--warning-ink);
+  --status-proposed:          var(--info-ink);
+  --status-planned:           var(--neutral-ink);
+
+  /* Layer palette — hues and ink colours are published upstream in
+     entity-graph.json (color / dark_color). The viewer consumes them.
+     -ink   text, borders on white and on -soft        (all ≥ 6.0:1)
+     -solid dots, accent bars, fills                    (decorative)
+     -soft  lane and tag fill (12 % tint)
+     -line  lane outline (32 % tint) */
+  --layer-1:       #2DD4BF;  --layer-1-ink: #1B6963;  --layer-1-soft: #E6FAF7;  --layer-1-line: #BCF1EB;
+  --layer-2:       #FBBF24;  --layer-2-ink: #785F1D;  --layer-2-soft: #FFF7E5;  --layer-2-line: #FEEBB9;
+  --layer-3:       #38BDF8;  --layer-3-ink: #205E7C;  --layer-3-soft: #E7F7FE;  --layer-3-line: #BFEAFD;
+  --layer-4:       #A78BFA;  --layer-4-ink: #52487D;  --layer-4-soft: #F4F1FE;  --layer-4-line: #E3DAFD;
+  --layer-5:       #FB7185;  --layer-5-ink: #783C48;  --layer-5-soft: #FFEEF0;  --layer-5-line: #FED2D8;
+  --layer-6:       #9CA3AF;  --layer-6-ink: #4B5563;  --layer-6-soft: #F3F4F5;  --layer-6-line: #DFE2E5;
+
+  /* Impact trace */
+  --trace-up:        var(--amber-600);   /* 3.19:1 */
+  --trace-up-soft:   var(--amber-50);
+  --trace-down:      var(--teal-600);    /* 3.74:1 */
+  --trace-down-soft: var(--teal-50);
+
+  /* Relationship categories (edge-styles vocabulary, tuned for white) */
+  --edge-structural: #6B7A88;   /* solid  — composition, aggregation   4.41:1 */
+  --edge-behavioral: #0E7490;   /* solid  — realization, flow, serving 5.36:1 */
+  --edge-governance: #7C3AED;   /* dashed — governance, contract       5.70:1 */
+  --edge-coupling:   #6B7A88;   /* dashed — dependency, association    4.41:1 */
+  --edge-derived:    #86939D;   /* dotted — specializes (derived)      3.0:1  */
+  --edge-opacity:          .62;
+  --edge-opacity-overview: .26;
+  --edge-opacity-dim:      .10;
+
+  /* Canvas */
+  --canvas-grid: rgba(20, 28, 35, .055);
+  --card-bg: var(--white);
+  --card-border: var(--gray-300);
+  --card-shadow: 0 1px 2px rgba(20, 28, 35, .05);
+  --card-shadow-hover: 0 3px 10px -2px rgba(20, 28, 35, .14), 0 1px 2px rgba(20, 28, 35, .06);
+  --card-shadow-selected: 0 0 0 2px var(--brand-ring), 0 6px 18px -4px rgba(20, 28, 35, .20);
+
+  --scrim: rgba(20, 28, 35, .42);
+
+  /* ---------------------------------------------------------------------------
+     2 · SEMANTIC — typography
+     One family, two voices: Geist for everything, Geist Mono for aliases,
+     counts and code. Optical hierarchy comes from size and weight only.
+     ------------------------------------------------------------------------- */
+  --font-sans: "Geist", -apple-system, BlinkMacSystemFont, "SF Pro Text",
+               "Segoe UI Variable", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  --text-2xs: 10px;
+  --text-xs:  11px;
+  --text-sm:  12px;
+  --text-md:  13px;   /* UI default */
+  --text-lg:  14px;   /* reading default */
+  --text-xl:  16px;
+  --text-2xl: 20px;
+  --text-3xl: 24px;
+  --text-4xl: 32px;
+  --text-5xl: 44px;
+
+  --leading-none:    1;
+  --leading-tight:   1.2;
+  --leading-snug:    1.35;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.65;
+
+  --tracking-tight: -0.022em;   /* display */
+  --tracking-snug:  -0.011em;   /* headings */
+  --tracking-normal: 0;
+  --tracking-wide:   0.01em;    /* small caps labels */
+
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* Composed text styles */
+  --text-overline: var(--weight-medium) var(--text-2xs)/var(--leading-tight) var(--font-sans);
+  --text-ui:       var(--text-md)/var(--leading-normal) var(--font-sans);
+  --text-mono-sm:  var(--text-xs)/var(--leading-tight) var(--font-mono);
+
+  /* ---------------------------------------------------------------------------
+     2 · SEMANTIC — space (4 px grid) & size
+     ------------------------------------------------------------------------- */
+  --space-0:   0;
+  --space-px:  1px;
+  --space-0-5: 2px;
+  --space-1:   4px;
+  --space-1-5: 6px;
+  --space-2:   8px;
+  --space-2-5: 10px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+  --space-16:  64px;
+
+  --control-h-sm:   28px;
+  --control-h-md:   32px;
+  --control-h-lg:   40px;
+  --control-h-touch: 44px;   /* minimum on coarse pointers */
+  --icon-sm: 14px;
+  --icon-md: 16px;
+  --icon-lg: 20px;
+
+  /* App shell */
+  --topbar-h:      56px;
+  --rail-w:        228px;
+  --rail-w-compact: 60px;
+  --drawer-w:      384px;
+  --viewbar-h:     52px;
+  --statusbar-h:   30px;
+  --bottomnav-h:   60px;
+
+  /* Document (plan page) */
+  --content-max: 1240px;
+  --toc-w:        232px;
+
+  /* ---------------------------------------------------------------------------
+     2 · SEMANTIC — shape
+     Crisp and restrained: controls 6 px, cards 8 px, dialogs 12–16 px.
+     ------------------------------------------------------------------------- */
+  --radius-xs:   3px;
+  --radius-sm:   5px;
+  --radius-md:   6px;
+  --radius-lg:   8px;
+  --radius-xl:   12px;
+  --radius-2xl:  16px;
+  --radius-full: 999px;
+
+  /* ---------------------------------------------------------------------------
+     2 · SEMANTIC — elevation (cool-tinted, layered)
+     ------------------------------------------------------------------------- */
+  --shadow-xs: 0 1px 1px rgba(20, 28, 35, .04);
+  --shadow-sm: 0 1px 2px rgba(20, 28, 35, .06), 0 0 0 1px rgba(20, 28, 35, .02);
+  --shadow-md: 0 2px 6px -1px rgba(20, 28, 35, .08), 0 1px 2px rgba(20, 28, 35, .05);
+  --shadow-lg: 0 12px 28px -6px rgba(20, 28, 35, .16), 0 2px 6px -2px rgba(20, 28, 35, .06);
+  --shadow-xl: 0 28px 64px -16px rgba(20, 28, 35, .26), 0 8px 20px -8px rgba(20, 28, 35, .10);
+  --shadow-drawer: -12px 0 40px -12px rgba(20, 28, 35, .22);
+  --shadow-sheet:  0 -16px 48px -12px rgba(20, 28, 35, .28);
+
+  /* ---------------------------------------------------------------------------
+     2 · SEMANTIC — motion
+     ------------------------------------------------------------------------- */
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 260ms;
+  --dur-sheet: 320ms;
+  --ease-out:   cubic-bezier(.2, 0, 0, 1);
+  --ease-in-out: cubic-bezier(.65, 0, .35, 1);
+  --motion-fast: var(--dur-fast) var(--ease-out);
+  --motion-base: var(--dur-base) var(--ease-out);
+  --motion-slow: var(--dur-slow) var(--ease-in-out);
+
+  /* ---------------------------------------------------------------------------
+     2 · SEMANTIC — stacking
+     (Modal dialogs use the native top layer and sit above all of these.)
+     ------------------------------------------------------------------------- */
+  --z-sticky:   100;
+  --z-rail:     110;
+  --z-toolbar:  120;
+  --z-drawer:   600;
+  --z-popover:  700;
+  --z-tooltip:  800;
+  --z-toast:    900;
+
+  /* ---------------------------------------------------------------------------
+     Canvas geometry — world units at 100 % zoom. Read by js/app-canvas.js;
+     edit here to re-proportion the diagram without touching code.
+     ------------------------------------------------------------------------- */
+  --cv-card-w:        180px;
+  --cv-card-h:        44px;    /* names tier */
+  --cv-card-h-detail: 112px;   /* detail tier */
+  --cv-col-gap:       40px;
+  --cv-row-gap:       24px;
+  --cv-lane-head:     40px;   /* band above a lane's first row; the label straddles its top edge */
+  --cv-lane-pad-x:    16px;
+  --cv-lane-pad-b:    12px;
+  --cv-lane-gap:      36px;
+  --cv-margin:        32px;
+  --cv-fit-pad:       0.96;    /* fraction of viewport used by "fit" */
+  --cv-tier-names:    0.70;    /* zoom where names become legible (9.1 px) */
+  --cv-tier-detail:   1.35;    /* zoom where full cards appear */
+  --cv-zoom-min:      0.12;
+  --cv-zoom-max:      3;
+}
+
+/* -----------------------------------------------------------------------------
+   Breakpoints — reference only (custom properties cannot drive @media).
+   The same three values are written literally wherever a media query appears.
+     mobile   < 768      bottom tab bar, sheets, fit-to-height canvas
+     tablet   768–1179   compact icon rail
+     desktop  ≥ 1180     labelled rail, overlay inspector
+   ----------------------------------------------------------------------------- */
+:root {
+  --bp-tablet-min: 768px;
+  --bp-desktop-min: 1180px;
+}

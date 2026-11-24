@@ -1,40 +1,71 @@
-# DEA Web Viewer — UX Improvement Plan
+# DEA Web Viewer — UX Plan & Design Prototype
 
-Visual plan and strategy review for https://technehub-labs.github.io/dea-web-viewer/
-(audited live at v1.0.0 on 2026-11-23, cross-checked against the source in
-`~/Developer/dea-web-viewer`).
+Design work for the [DEA Web Viewer](https://technehub-labs.github.io/dea-web-viewer/):
+the audit and strategy plan, a token-driven design system, and a clickable
+prototype of the modernised viewer. Nothing here changes the viewer itself —
+it is the reference for implementing the plan in
+[`technehub-labs/dea-web-viewer`](https://github.com/technehub-labs/dea-web-viewer).
 
-## View the plan
+**Current version: 2.0.0** — see [CHANGELOG.md](CHANGELOG.md).
 
-Open `index.html` in any browser (works from disk, no server needed — all
-styles and mockups are inline; evidence screenshots load from `assets/`).
+## View it
 
-A loopback preview server may also be running from the review session:
-`http://127.0.0.1:8791/` (start: `python3 -m http.server 8791` in this folder;
-stop: `kill` the python process or just close the terminal).
+Published on GitHub Pages:
+
+| URL | What it is |
+|---|---|
+| <https://technehub-labs.github.io/dea-web-viewer-ux-plan/> | The plan — audit, strategies, responsive blueprint, roadmap, metrics |
+| <https://technehub-labs.github.io/dea-web-viewer-ux-plan/prototype.html> | The interactive prototype — start here for the design |
+
+Or run the same static files locally. Serve the folder over HTTP (fonts and
+embeds need it; opening from `file://` falls back to system fonts):
+
+```bash
+cd dea-web-viewer-ux-plan && python3 -m http.server 8791 --bind 127.0.0.1
+```
 
 ## What's inside
 
-| Section | Content |
+| Path | Role |
 |---|---|
-| §1 Audit | 10 findings (3 × P0) with live evidence screenshots in `assets/` |
-| §2 Strategies | S1 responsive shell & IA · S2 fit-on-load + progressive disclosure · S3 guided starts · S4 unified inspection loop · S5 deep links & viewpoints — each with mockups at desktop/tablet/mobile and a step-by-step walkthrough |
-| §3 Responsive blueprint | Component-by-component breakpoint contract (390 → 2560) |
-| §4 Roadmap | Phase 0 quick wins (days) → Phase 1 shell + inspector (1–2 wks) → Phase 2 canvas craft + personas (2–4 wks) |
-| §5 Metrics | Measurable acceptance criteria (7/7 views clickable, <1 s to see the model, 100 % deep-link restore, …) |
+| `tokens.css` | **Design tokens** — the single source of truth for colour, type, space, shape, elevation, motion |
+| `fonts.css`, `assets/fonts/` | Geist + Geist Mono, self-hosted (SIL OFL 1.1) |
+| `ui.css` | UI kit built only from tokens: buttons, chips, tags, badges, fields, tabs, dialogs, sheets, menus, toasts |
+| `prototype.html`, `prototype.css`, `js/app-*.js` | The prototype: responsive shell, white canvas, inspector, command palette, dialogs, six views |
+| `index.html` | The plan document (still the 1.0.0 layout — restyling it onto the tokens is the next step) |
+| `js/data.js`, `js/icons.js` | Generated — the real synced metamodel, and icon data from the viewer's own lucide version |
+| `tools/build-assets.py` | Regenerates the two generated files from a local `dea-web-viewer` checkout |
+| `assets/*.png` | Evidence screenshots of the current viewer, captured for the audit |
 
-## Headline findings (P0)
+### The token rule
 
-1. **F-01** — Coverage and Viewpoints tabs are painted over by the search box at
-   1440/1920/2560 px; unreachable by mouse (DOM-rect verified).
-2. **F-02** — No responsive layout: at 390 px the header eats ~250 px and 6 of 7
-   views are unreachable; "Press Esc" hint shown on touch.
-3. **F-03** — `?view=` deep links are parsed but never applied
-   (`src/App.tsx:65` vs hydration at lines 99–101); URL is then rewritten, so
-   every shared link lands on Canonical SVG.
+Components consume **semantic** tokens (`--text-primary`, `--bg-canvas`,
+`--brand`, `--layer-3-ink`…), never primitives and never literals. Change a
+token in `tokens.css` and the plan, the UI kit and the prototype change
+together. Layer hues and their ink colours come from the metamodel's own
+published palette; every text token clears 4.5:1 on white and every line or
+edge clears 3:1 (figures are noted in the file).
 
-## Status
+### Keep the data current
 
-For review — nothing here has been implemented. Approve/edit strategies, then
-implementation would follow the roadmap phases as PRs against
-`technehub-labs/dea-web-viewer`.
+The prototype renders the real model (81 entities, 135 relationships). After
+the viewer's CI sync pulls a new metamodel:
+
+```bash
+python3 -I tools/build-assets.py /path/to/dea-web-viewer
+```
+
+## State of the work
+
+- **Done and verified** — tokens, UI kit, and the prototype at desktop, tablet
+  and phone widths: shell, canvas (overview → names → detail zoom, minimap,
+  impact trace), inspector, search, export, share, shortcuts, legend, filters,
+  and the Matrix, Traceability, Coverage, Catalogs and Viewpoints views.
+- **Not done** — the plan document itself (`index.html`) has not been moved
+  onto the tokens yet, so it still looks like version 1.0.0.
+
+## Licences
+
+Geist and Geist Mono are licensed under the SIL Open Font License 1.1
+(`assets/fonts/Geist-OFL.txt`). Icon path data is from
+[Lucide](https://lucide.dev) (ISC).

@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en" data-zcode-design>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#ffffff">
+  <title>DEA Web Viewer — Design Prototype</title>
+  <meta name="description" content="Clickable design prototype of the modernised DEA Web Viewer. Built on tokens.css; renders the real synced metamodel.">
+  <link rel="stylesheet" href="fonts.css">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="ui.css">
+  <link rel="stylesheet" href="prototype.css">
+</head>
+<body class="app" data-view="canvas">
+
+  <div class="shell" id="shell">
+
+    <!-- ── Top bar ─────────────────────────────────────────────────────── -->
+    <header class="topbar">
+      <button class="icon-btn topbar__rail" data-action="rail" aria-label="Toggle navigation labels" aria-pressed="true" data-tip="Toggle navigation labels">
+        <i class="ico" data-icon="panel-left"></i>
+      </button>
+      <a class="brand" href="?view=canvas" data-nav="canvas" aria-label="DEA Web Viewer home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M8 16.4 12 8l4 8.4"/><circle cx="8" cy="16.6" r="1.7"/><circle cx="12" cy="8" r="1.7"/><circle cx="16" cy="16.6" r="1.7"/></svg>
+        </span>
+        <span class="brand__name">DEA Web Viewer</span>
+        <span class="brand__ver">1.0.0</span>
+      </a>
+      <button class="searchbox" data-action="search" aria-label="Search entities, views and actions">
+        <i class="ico" data-icon="search"></i>
+        <span class="searchbox__text">Search entities…</span>
+        <span class="kbd">⌘K</span>
+      </button>
+      <div class="topbar__actions">
+        <button class="btn" data-action="export"><i class="ico" data-icon="download"></i><span>Export</span></button>
+        <button class="icon-btn" data-action="share" aria-label="Share link" data-tip="Share link"><i class="ico" data-icon="link"></i></button>
+        <button class="icon-btn" data-action="keys" aria-label="Keyboard shortcuts" data-tip="Keyboard shortcuts"><i class="ico" data-icon="circle-help"></i></button>
+      </div>
+    </header>
+
+    <!-- ── Rail ────────────────────────────────────────────────────────── -->
+    <nav class="rail" aria-label="Views">
+      <div class="rail__group">
+        <div class="overline rail__label">Explore</div>
+        <a class="rail__item is-active" href="?view=canvas" data-nav="canvas"><i class="ico" data-icon="workflow"></i><span>Canvas</span></a>
+        <a class="rail__item" href="?view=matrix" data-nav="matrix"><i class="ico" data-icon="grid-3x3"></i><span>Matrix</span></a>
+      </div>
+      <div class="rail__group">
+        <div class="overline rail__label">Analyze</div>
+        <a class="rail__item" href="?view=trace" data-nav="trace"><i class="ico" data-icon="route"></i><span>Traceability</span></a>
+        <a class="rail__item" href="?view=coverage" data-nav="coverage"><i class="ico" data-icon="bar-chart-3"></i><span>Coverage</span></a>
+      </div>
+      <div class="rail__group">
+        <div class="overline rail__label">Apply</div>
+        <a class="rail__item" href="?view=catalogs" data-nav="catalogs"><i class="ico" data-icon="book-open"></i><span>Catalogs</span></a>
+        <a class="rail__item" href="?view=viewpoints" data-nav="viewpoints"><i class="ico" data-icon="users"></i><span>Viewpoints</span></a>
+      </div>
+      <div class="rail__foot">
+        <div class="sync">
+          <i class="ico" data-icon="database"></i>
+          <div>
+            <div class="sync__title">Synced · metamodel 1.0.0</div>
+            <div class="sync__sub" id="syncSub">81 entities · 135 relationships</div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ── Main ────────────────────────────────────────────────────────── -->
+    <main class="main" id="main">
+      <div class="viewbar">
+        <div class="viewbar__heading">
+          <h1 class="viewbar__title" id="viewTitle">Canvas</h1>
+          <p class="viewbar__sub" id="viewSub"></p>
+        </div>
+        <div class="viewbar__tools" id="viewTools"></div>
+      </div>
+
+      <section class="stage" id="stage" data-panel="canvas" aria-label="Metamodel canvas">
+        <div class="cv" id="cv" tabindex="0" data-tier="overview"></div>
+        <div class="cv__toolbar cv__ui" role="toolbar" aria-label="Zoom controls">
+          <button class="icon-btn" data-action="zoom-out" aria-label="Zoom out" data-tip="Zoom out"><i class="ico" data-icon="minus"></i></button>
+          <button class="zoom-readout" data-action="fit" aria-label="Zoom level — click to fit to view" data-tip="Fit to view"><span id="zoomLabel">100%</span></button>
+          <button class="icon-btn" data-action="zoom-in" aria-label="Zoom in" data-tip="Zoom in"><i class="ico" data-icon="plus"></i></button>
+          <span class="toolbar__sep" aria-hidden="true"></span>
+          <button class="icon-btn" data-action="fit" aria-label="Fit to view" data-tip="Fit to view"><i class="ico" data-icon="maximize"></i></button>
+          <button class="icon-btn" data-action="legend" aria-label="Legend" aria-haspopup="dialog" data-tip="Legend"><i class="ico" data-icon="layers"></i></button>
+        </div>
+        <div class="cv__start cv__ui" id="startPanel" hidden></div>
+      </section>
+
+      <section class="page" data-panel="matrix" id="pageMatrix" hidden aria-label="Matrix"></section>
+      <section class="page" data-panel="trace" id="pageTrace" hidden aria-label="Traceability"></section>
+      <section class="page" data-panel="coverage" id="pageCoverage" hidden aria-label="Coverage"></section>
+      <section class="page" data-panel="catalogs" id="pageCatalogs" hidden aria-label="Catalogs"></section>
+      <section class="page" data-panel="viewpoints" id="pageViewpoints" hidden aria-label="Viewpoints"></section>
+
+      <aside class="inspector" id="inspector" aria-label="Entity inspector" hidden></aside>
+    </main>
+
+    <!-- ── Status bar ──────────────────────────────────────────────────── -->
+    <footer class="statusbar">
+      <span>Design prototype <span class="mono">v2.0.0</span></span>
+      <span>Synced from <span class="mono">dea-metamodel@1.0.0</span></span>
+      <span class="statusbar__hover" id="statusHover" aria-live="polite"></span>
+      <span class="statusbar__hint">Drag to pan · Scroll to zoom · Click an entity to inspect · <span class="kbd">?</span> shortcuts</span>
+    </footer>
+
+    <!-- ── Bottom tab bar (mobile) ─────────────────────────────────────── -->
+    <nav class="bottomnav" aria-label="Views">
+      <a class="bottomnav__item" href="?view=canvas" data-nav="canvas"><i class="ico" data-icon="workflow"></i><span>Canvas</span></a>
+      <a class="bottomnav__item" href="?view=matrix" data-nav="matrix"><i class="ico" data-icon="grid-3x3"></i><span>Matrix</span></a>
+      <a class="bottomnav__item" href="?view=trace" data-nav="trace"><i class="ico" data-icon="route"></i><span>Trace</span></a>
+      <button class="bottomnav__item" data-action="more" aria-haspopup="dialog"><i class="ico" data-icon="ellipsis"></i><span>More</span></button>
+    </nav>
+  </div>
+
+  <!-- ── Dialogs & popovers ────────────────────────────────────────────── -->
+  <dialog class="dialog dialog--cmd" id="dlgSearch" aria-label="Search">
+    <div class="dialog__panel">
+      <div class="cmd__search">
+        <i class="ico" data-icon="search"></i>
+        <input id="cmdInput" type="text" placeholder="Search entities, views and actions…" autocomplete="off" spellcheck="false" aria-label="Search">
+        <span class="kbd">Esc</span>
+      </div>
+      <div class="cmd__list" id="cmdList" role="listbox" aria-label="Results"></div>
+      <div class="cmd__foot">
+        <span><span class="kbd">↑</span><span class="kbd">↓</span> navigate</span>
+        <span><span class="kbd">↵</span> open</span>
+        <span><span class="kbd">esc</span> close</span>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="dialog dialog--wide" id="dlgExport" aria-labelledby="exportTitle">
+    <div class="dialog__panel">
+      <button class="icon-btn dialog__close" data-close aria-label="Close"><i class="ico" data-icon="x"></i></button>
+      <div class="dialog__head">
+        <h2 class="dialog__title" id="exportTitle">Export</h2>
+        <p class="dialog__desc">Download the model in the format your tooling expects.</p>
+      </div>
+      <div class="dialog__body">
+        <span class="overline form__label" style="margin-top:0">Format</span>
+        <div class="optgrid" id="exportFormats" role="radiogroup" aria-label="Format"></div>
+        <span class="overline form__label">Scope</span>
+        <div class="optradios" id="exportScope"></div>
+        <span class="overline form__label">Options</span>
+        <div class="optchecks" id="exportOptions"></div>
+      </div>
+      <div class="dialog__foot">
+        <span class="dialog__foot-note" id="exportSummary"></span>
+        <button class="btn" data-close>Cancel</button>
+        <button class="btn btn--primary" id="exportGo"><i class="ico" data-icon="download"></i><span id="exportGoLabel">Export</span></button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="dialog" id="dlgShare" aria-labelledby="shareTitle">
+    <div class="dialog__panel">
+      <button class="icon-btn dialog__close" data-close aria-label="Close"><i class="ico" data-icon="x"></i></button>
+      <div class="dialog__head">
+        <h2 class="dialog__title" id="shareTitle">Share this view</h2>
+        <p class="dialog__desc">Anyone with the link lands on exactly what you see.</p>
+      </div>
+      <div class="dialog__body">
+        <div class="sharefield">
+          <div class="field field--lg"><input id="shareUrl" type="text" readonly aria-label="Share link"></div>
+          <button class="btn btn--primary btn--lg" data-action="copy-share"><i class="ico" data-icon="copy"></i>Copy</button>
+        </div>
+        <span class="overline form__label">Include</span>
+        <div class="optchecks" id="shareOptions"></div>
+      </div>
+      <div class="dialog__foot">
+        <span class="dialog__foot-note">Nothing is uploaded — state lives in the URL.</span>
+        <button class="btn" data-close>Done</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="dialog dialog--wide" id="dlgKeys" aria-labelledby="keysTitle">
+    <div class="dialog__panel">
+      <button class="icon-btn dialog__close" data-close aria-label="Close"><i class="ico" data-icon="x"></i></button>
+      <div class="dialog__head">
+        <h2 class="dialog__title" id="keysTitle">Keyboard shortcuts</h2>
+        <p class="dialog__desc">Everything in the viewer is reachable from the keyboard.</p>
+      </div>
+      <div class="dialog__body"><div class="keys" id="keysGrid"></div></div>
+    </div>
+  </dialog>
+
+  <dialog class="sheet" id="dlgMore" aria-labelledby="moreTitle">
+    <div class="sheet__panel">
+      <div class="sheet__grab"></div>
+      <div class="sheet__head"><h2 class="sheet__title" id="moreTitle">More</h2><button class="icon-btn" data-close aria-label="Close"><i class="ico" data-icon="x"></i></button></div>
+      <div class="sheet__body" id="moreBody"></div>
+    </div>
+  </dialog>
+
+  <dialog class="sheet" id="dlgFilters" aria-labelledby="filtersTitle">
+    <div class="sheet__panel">
+      <div class="sheet__grab"></div>
+      <div class="sheet__head"><h2 class="sheet__title" id="filtersTitle">Filters</h2><button class="btn btn--sm btn--ghost" data-action="reset-filters">Reset</button><button class="icon-btn" data-close aria-label="Close"><i class="ico" data-icon="x"></i></button></div>
+      <div class="sheet__body" id="filtersBody"></div>
+    </div>
+  </dialog>
+
+  <dialog class="sheet sheet--inspector" id="dlgSheet" aria-label="Entity inspector">
+    <div class="sheet__panel">
+      <div class="sheet__grabzone" id="sheetGrab"><div class="sheet__grab"></div></div>
+      <div id="sheetHost" class="inspector__wrap"></div>
+    </div>
+  </dialog>
+
+  <div class="menu" id="popScope" role="menu" aria-label="Membership scope" hidden></div>
+  <div class="menu menu--legend" id="popLegend" role="dialog" aria-label="Legend" hidden></div>
+  <div class="menu" id="popLane" role="menu" aria-label="Focus a lane" hidden></div>
+  <div class="tooltip" id="tooltip" role="tooltip" hidden></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/app-model.js"></script>
+  <script src="js/app-canvas.js"></script>
+  <script src="js/app-ui.js"></script>
+</body>
+</html>
