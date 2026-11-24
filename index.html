@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DEA Web Viewer — UX Improvement Plan &amp; Visual Walkthrough</title>
+<style>
+  :root{
+    --bg:#0a0f14; --bg2:#0e141b; --panel:#121a23; --panel2:#16212c;
+    --line:#223140; --line2:#2c3e52;
+    --text:#dbe7f0; --muted:#8fa3b5; --faint:#5c7086;
+    --teal:#2dd4bf; --teal-dim:#1a8f80; --amber:#f5b04c; --red:#f87171; --violet:#a78bfa; --blue:#5eb0f0; --green:#4ade80;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg); color:var(--text); font-family:var(--sans); font-size:15.5px; line-height:1.6;
+       background-image:radial-gradient(ellipse 90% 60% at 50% -10%, rgba(45,212,191,.07), transparent);}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 28px 120px;}
+  a{color:var(--teal); text-decoration:none;} a:hover{text-decoration:underline;}
+  code,.mono{font-family:var(--mono); font-size:.92em;}
+
+  /* ── hero ── */
+  .hero{padding:72px 0 40px;}
+  .eyebrow{font-family:var(--mono); font-size:11.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--teal);}
+  .hero h1{font-size:clamp(28px,4.4vw,44px); font-weight:800; letter-spacing:-.02em; margin:14px 0 12px; line-height:1.15;}
+  .hero h1 .dim{color:var(--muted); font-weight:600;}
+  .hero p.lede{max-width:760px; color:var(--muted); font-size:17px;}
+  .meta-row{display:flex; flex-wrap:wrap; gap:10px; margin-top:26px;}
+  .chip{display:inline-flex; align-items:center; gap:7px; border:1px solid var(--line2); background:var(--panel);
+        border-radius:999px; padding:5px 14px; font-family:var(--mono); font-size:12px; color:var(--muted);}
+  .chip b{color:var(--text); font-weight:600;}
+  .chip .dot{width:7px; height:7px; border-radius:50%; background:var(--teal);}
+  .chip .dot.red{background:var(--red);} .chip .dot.amber{background:var(--amber);} .chip .dot.green{background:var(--green);}
+
+  /* ── section scaffolding ── */
+  section{padding-top:64px;}
+  .sec-head{display:flex; align-items:baseline; gap:16px; margin-bottom:10px;}
+  .sec-num{font-family:var(--mono); color:var(--teal); font-size:13px; letter-spacing:.18em;}
+  .sec-head h2{font-size:26px; font-weight:750; letter-spacing:-.01em;}
+  .sec-sub{color:var(--muted); max-width:820px; margin-bottom:28px;}
+  .rule{height:1px; background:linear-gradient(90deg,var(--line2),transparent); margin:8px 0 30px;}
+
+  /* ── findings table ── */
+  table.findings{width:100%; border-collapse:collapse; font-size:13.5px;}
+  table.findings th{font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--faint);
+    text-align:left; padding:10px 12px; border-bottom:1px solid var(--line2);}
+  table.findings td{padding:11px 12px; border-bottom:1px solid var(--line); vertical-align:top;}
+  table.findings td.id{font-family:var(--mono); color:var(--teal); white-space:nowrap;}
+  .sev{display:inline-block; font-family:var(--mono); font-size:10px; letter-spacing:.1em; padding:2px 9px; border-radius:999px; border:1px solid;}
+  .sev.p0{color:var(--red); border-color:var(--red);} .sev.p1{color:var(--amber); border-color:var(--amber);} .sev.p2{color:var(--blue); border-color:var(--blue);}
+
+  /* ── evidence gallery ── */
+  .ev-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:18px; margin-top:24px;}
+  figure.ev{background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden;}
+  figure.ev img{width:100%; display:block; aspect-ratio:16/10; object-fit:cover; object-position:top;}
+  figure.ev figcaption{padding:12px 16px 14px; font-size:13px; color:var(--muted);}
+  figure.ev figcaption b{color:var(--text); display:block; margin-bottom:2px; font-size:13.5px;}
+  figure.ev figcaption .tag{font-family:var(--mono); font-size:10.5px; color:var(--faint); letter-spacing:.08em;}
+
+  .callout{border-left:3px solid var(--red); background:rgba(248,113,113,.06); border-radius:0 10px 10px 0;
+    padding:14px 18px; margin:26px 0; font-size:14px; color:var(--text);}
+  .callout.amber{border-color:var(--amber); background:rgba(245,176,76,.06);}
+  .callout b{color:var(--red);} .callout.amber b{color:var(--amber);}
+
+  /* ── strategy blocks ── */
+  .strategy{background:var(--bg2); border:1px solid var(--line); border-radius:16px; padding:34px 34px 30px; margin-top:36px;}
+  .strat-head{display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:6px;}
+  .strat-badge{font-family:var(--mono); font-size:12px; letter-spacing:.16em; color:#062a26; background:var(--teal);
+    border-radius:8px; padding:4px 12px; font-weight:700;}
+  .strategy h3{font-size:21px; font-weight:750; letter-spacing:-.01em;}
+  .strat-goal{color:var(--muted); font-size:14.5px; margin:8px 0 4px; max-width:860px;}
+  .strat-meta{display:flex; flex-wrap:wrap; gap:22px; margin:14px 0 6px; font-family:var(--mono); font-size:11.5px; color:var(--faint);}
+  .strat-meta b{color:var(--text); font-weight:600;}
+  .meter{display:inline-block; width:110px; height:5px; border-radius:99px; background:var(--line2); position:relative; top:-2px; margin-left:8px; overflow:hidden;}
+  .meter i{display:block; height:100%; border-radius:99px;}
+  .m-impact i{width:88%; background:linear-gradient(90deg,var(--teal),var(--green));}
+  .m-impact-mid i{width:66%; background:linear-gradient(90deg,var(--teal),var(--green));}
+  .m-effort i{width:34%; background:var(--amber);}
+  .m-effort-mid i{width:58%; background:var(--amber);}
+  .m-effort-big i{width:82%; background:var(--amber);}
+
+  h4.step-title{font-family:var(--mono); font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--teal); margin:30px 0 12px;}
+
+  /* walkthrough steps */
+  ol.walk{list-style:none; counter-reset:w; display:grid; gap:10px; margin-top:6px;}
+  ol.walk li{counter-increment:w; position:relative; padding:10px 16px 10px 52px; background:var(--panel);
+    border:1px solid var(--line); border-radius:10px; font-size:14px; color:var(--text);}
+  ol.walk li::before{content:counter(w); position:absolute; left:14px; top:10px; width:26px; height:26px; border-radius:8px;
+    background:rgba(45,212,191,.12); color:var(--teal); font-family:var(--mono); font-size:13px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; border:1px solid rgba(45,212,191,.35);}
+  ol.walk li span.where{display:block; font-family:var(--mono); font-size:11px; color:var(--faint); margin-top:2px; letter-spacing:.05em;}
+
+  /* device frames */
+  .frames{display:flex; flex-wrap:wrap; gap:26px; align-items:flex-start; justify-content:center;
+    background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:30px 22px; margin-top:14px;}
+  .frames.trio{display:grid; grid-template-columns:1fr 1fr; justify-items:center; align-items:start;}
+  .frames.trio > :first-child{grid-column:1 / -1;}
+  .frame{border-radius:14px; overflow:hidden; border:1px solid var(--line2); box-shadow:0 18px 44px rgba(0,0,0,.45); background:var(--bg); flex:none;}
+  .tscroll{overflow-x:auto;}
+  .tscroll table{min-width:640px;}
+  .frame-label{font-family:var(--mono); font-size:10.5px; letter-spacing:.14em; color:var(--faint); text-align:center; padding-top:9px; text-transform:uppercase;}
+
+  /* mini UI kit for mockups */
+  .m-app{display:flex; flex-direction:column; background:#0b1117;}
+  .m-top{display:flex; align-items:center; gap:8px; background:#0e161e; border-bottom:1px solid var(--line); padding:7px 10px;}
+  .m-brand{display:flex; align-items:center; gap:6px; font-weight:700; font-size:11px; letter-spacing:.02em; white-space:nowrap;}
+  .m-logo{width:16px; height:16px; border-radius:5px; background:linear-gradient(135deg,var(--teal),#0e7490); flex:none;}
+  .m-search{flex:1; min-width:40px; background:#0a1219; border:1px solid var(--line); border-radius:7px;
+    font-size:9.5px; color:var(--faint); padding:4px 9px; white-space:nowrap; overflow:hidden;}
+  .m-ic{width:20px; height:20px; border-radius:6px; background:#12202b; border:1px solid var(--line); flex:none;}
+  .m-ic.teal{background:rgba(45,212,191,.15); border-color:rgba(45,212,191,.4);}
+  .m-btn{font-size:9px; font-family:var(--mono); color:var(--muted); border:1px solid var(--line2); border-radius:6px; padding:3px 8px; white-space:nowrap;}
+  .m-body{display:flex; flex:1; min-height:0;}
+  .m-rail{width:44px; background:#0d151d; border-right:1px solid var(--line); display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 0;}
+  .m-rail .grp{font-family:var(--mono); font-size:6.5px; letter-spacing:.1em; color:var(--faint); margin:5px 0 2px;}
+  .m-rail .r-ic{width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    font-size:11px; color:var(--muted); background:transparent; border:1px solid transparent;}
+  .m-rail .r-ic.on{background:rgba(45,212,191,.14); color:var(--teal); border-color:rgba(45,212,191,.45);}
+  .m-rail .r-lb{font-size:6.5px; color:var(--faint); margin-top:-2px; font-family:var(--mono);}
+  .m-stage{flex:1; position:relative; background:
+     linear-gradient(rgba(45,212,191,.035) 1px, transparent 1px),
+     linear-gradient(90deg, rgba(45,212,191,.035) 1px, transparent 1px);
+     background-size:22px 22px; background-color:#0a0f15;}
+  .m-status{display:flex; gap:10px; align-items:center; border-top:1px solid var(--line); background:#0e161e;
+    padding:4px 10px; font-family:var(--mono); font-size:8px; color:var(--faint);}
+  .m-status b{color:var(--teal); font-weight:600;}
+  .m-bottomnav{display:flex; justify-content:space-around; align-items:center; background:#0e161e; border-top:1px solid var(--line2); padding:6px 4px 8px;}
+  .m-bottomnav .bn{display:flex; flex-direction:column; align-items:center; gap:2px; font-family:var(--mono); font-size:7px; color:var(--faint);}
+  .m-bottomnav .bn i{width:20px; height:20px; border-radius:7px; background:#12202b; display:block;}
+  .m-bottomnav .bn.on{color:var(--teal);} .m-bottomnav .bn.on i{background:rgba(45,212,191,.16); border:1px solid rgba(45,212,191,.4);}
+  .m-bottomnav .bn.more i{border-style:dashed;}
+
+  /* canvas mockups (inline svg containers) */
+  .fitbar{position:absolute; top:10px; right:10px; display:flex; gap:4px; align-items:center;
+    background:#0e161eE6; border:1px solid var(--line2); border-radius:8px; padding:3px 6px; font-family:var(--mono); font-size:8.5px; color:var(--muted);}
+  .fitbar b{color:var(--teal);}
+  .minimap{position:absolute; left:10px; bottom:10px; width:74px; height:46px; border-radius:6px; background:#0e161eE6;
+    border:1px solid var(--line2); overflow:hidden;}
+  .minimap i{position:absolute; inset:14px 20px 10px 12px; border:1.5px solid var(--teal); border-radius:2px; background:rgba(45,212,191,.12);}
+
+  /* zoom ladder */
+  .ladder{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:14px;}
+  .rung{background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden;}
+  .rung .cap{display:flex; justify-content:space-between; align-items:center; padding:8px 12px; font-family:var(--mono); font-size:10.5px; color:var(--muted); border-top:1px solid var(--line);}
+  .rung .cap b{color:var(--teal);}
+
+  /* guided cards */
+  .g-cards{position:absolute; inset:auto 12px 12px 12px; display:grid; grid-template-columns:repeat(4,1fr); gap:8px;}
+  .g-card{background:#101a24F2; border:1px solid var(--line2); border-radius:9px; padding:8px 10px;}
+  .g-card .t{font-size:9.5px; font-weight:700; color:var(--text); display:flex; gap:5px; align-items:center;}
+  .g-card .t i{width:6px; height:6px; border-radius:2px; background:var(--teal); display:inline-block;}
+  .g-card .d{font-size:8px; color:var(--faint); margin-top:3px; line-height:1.45;}
+
+  /* breadcrumb path chips (traceability) */
+  .path-chips{display:flex; align-items:center; gap:6px; flex-wrap:nowrap; background:#101a24; border:1px solid var(--line2);
+    border-radius:10px; padding:10px 12px;}
+  .pc{font-family:var(--mono); font-size:10px; border-radius:7px; padding:5px 9px; border:1px solid; white-space:nowrap;}
+  .pc.src{color:var(--amber); border-color:rgba(245,176,76,.5); background:rgba(245,176,76,.08);}
+  .pc.mid{color:var(--text); border-color:var(--line2); background:#0e161e;}
+  .pc.dst{color:var(--teal); border-color:rgba(45,212,191,.5); background:rgba(45,212,191,.08);}
+  .pc-arrow{color:var(--faint); font-size:11px;}
+  .presets{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;}
+  .preset{font-size:10px; font-family:var(--mono); color:var(--muted); border:1px dashed var(--line2); border-radius:999px; padding:4px 10px;}
+  .preset.on{color:var(--teal); border:1px solid rgba(45,212,191,.5); background:rgba(45,212,191,.08);}
+
+  /* drawer mockups */
+  .drawer-demo{display:flex; gap:22px; justify-content:center; align-items:flex-start; flex-wrap:wrap;
+    background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:28px 20px; margin-top:14px;}
+  .d-stage{position:relative; width:400px; height:250px; border-radius:10px; border:1px solid var(--line); overflow:hidden;
+    background:linear-gradient(rgba(45,212,191,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(45,212,191,.03) 1px, transparent 1px); background-size:20px 20px;}
+  .d-drawer{position:absolute; top:0; right:0; bottom:0; width:186px; background:#101a24; border-left:1px solid var(--line2);
+    padding:10px; display:flex; flex-direction:column; gap:8px; box-shadow:-14px 0 30px rgba(0,0,0,.4);}
+  .d-tabs{display:flex; gap:3px;}
+  .d-tab{font-family:var(--mono); font-size:8px; padding:3px 7px; border-radius:6px; color:var(--faint); border:1px solid transparent;}
+  .d-tab.on{color:var(--teal); background:rgba(45,212,191,.1); border-color:rgba(45,212,191,.35);}
+  .d-title{font-size:11px; font-weight:700;}
+  .d-sub{font-family:var(--mono); font-size:8px; color:var(--faint);}
+  .d-row{display:flex; gap:5px; align-items:center; font-size:8.5px; color:var(--muted); background:#0e161e; border:1px solid var(--line); border-radius:7px; padding:5px 7px;}
+  .d-row i{width:7px; height:7px; border-radius:50%; flex:none;}
+  .i-up{background:var(--amber);} .i-dn{background:var(--teal);} .i-sel{background:var(--violet);}
+  .d-cta{margin-top:auto; display:flex; gap:5px;}
+  .d-cta .b{flex:1; font-size:8.5px; text-align:center; border-radius:7px; padding:5px 0; font-family:var(--mono);}
+  .b-pri{background:var(--teal); color:#062a26; font-weight:700;}
+  .b-sec{border:1px solid var(--line2); color:var(--muted);}
+  .sheet-stage{position:relative; width:230px; height:250px; border-radius:10px; border:1px solid var(--line); overflow:hidden; background:#0a0f15;}
+  .m-sheet{position:absolute; left:0; right:0; bottom:0; background:#101a24; border-radius:16px 16px 0 0; border-top:1px solid var(--line2);
+    padding:8px 12px 12px; box-shadow:0 -14px 30px rgba(0,0,0,.45);}
+  .m-grab{width:34px; height:4px; border-radius:99px; background:var(--line2); margin:0 auto 8px;}
+  .m-shead{display:flex; justify-content:space-between; align-items:center;}
+  .m-shead .t{font-size:11px; font-weight:700;}
+  .m-x{color:var(--faint); font-size:11px;}
+  .m-srow{display:flex; gap:6px; align-items:center; font-size:8.5px; color:var(--muted); background:#0e161e; border:1px solid var(--line); border-radius:7px; padding:5px 7px; margin-top:5px;}
+  .m-srow i{width:7px; height:7px; border-radius:50%; flex:none;}
+
+  /* viewpoints mockup */
+  .vp-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px;}
+  .vp-card{background:var(--panel); border:1px solid var(--line); border-radius:12px; overflow:hidden;}
+  .vp-prev{height:86px; background:linear-gradient(rgba(45,212,191,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(45,212,191,.04) 1px, transparent 1px); background-size:16px 16px; position:relative; background-color:#0b1117;}
+  .vp-body{padding:10px 12px 12px;}
+  .vp-body .t{font-size:12.5px; font-weight:700;}
+  .vp-body .d{font-size:10.5px; color:var(--faint); margin:3px 0 8px; line-height:1.5;}
+  .vp-row{display:flex; gap:6px;}
+  .vp-row .b{flex:1; font-size:10px; text-align:center; border-radius:7px; padding:5px 0; font-family:var(--mono);}
+  .vp-count{position:absolute; top:7px; left:8px; font-family:var(--mono); font-size:8px; color:var(--teal); background:#0b1117d9; border:1px solid rgba(45,212,191,.35); padding:2px 7px; border-radius:99px;}
+
+  /* breakpoint matrix */
+  table.bp{width:100%; border-collapse:collapse; font-size:13px;}
+  table.bp th{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint);
+    text-align:left; padding:10px 12px; border-bottom:1px solid var(--line2);}
+  table.bp td{padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top; color:var(--muted);}
+  table.bp td:first-child{font-family:var(--mono); color:var(--teal); white-space:nowrap;}
+  table.bp td b{color:var(--text); font-weight:600;}
+
+  /* roadmap */
+  .phases{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:20px;}
+  .phase{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:20px;}
+  .phase .ph-tag{font-family:var(--mono); font-size:10px; letter-spacing:.16em; color:#062a26; display:inline-block;
+    background:var(--teal); border-radius:6px; padding:3px 9px; font-weight:700;}
+  .phase.p2 .ph-tag{background:var(--amber);} .phase.p3 .ph-tag{background:var(--violet); color:#241a3f;}
+  .phase h4{font-size:15.5px; margin:10px 0 4px;}
+  .phase .ph-sub{font-family:var(--mono); font-size:10.5px; color:var(--faint); margin-bottom:12px;}
+  .phase ul{list-style:none; display:grid; gap:8px;}
+  .phase li{font-size:13px; color:var(--muted); padding-left:18px; position:relative;}
+  .phase li::before{content:"›"; position:absolute; left:2px; color:var(--teal); font-weight:700;}
+  .phase li b{color:var(--text); font-weight:600;}
+  .phase li .fid{font-family:var(--mono); font-size:10px; color:var(--faint);}
+
+  /* metrics */
+  .metrics{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; margin-top:20px;}
+  .metric{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px;}
+  .metric .k{font-family:var(--mono); font-size:19px; color:var(--teal); font-weight:700;}
+  .metric .n{font-size:12.5px; color:var(--muted); margin-top:4px; line-height:1.5;}
+
+  footer{border-top:1px solid var(--line); margin-top:80px; padding:28px 0 0; font-size:12.5px; color:var(--faint);
+    display:flex; flex-wrap:wrap; gap:10px 30px; justify-content:space-between;}
+
+  @media (max-width:900px){
+    .wrap{padding:0 16px 80px;}
+    .strategy{padding:22px 18px;}
+    .phases,.vp-grid,.ladder{grid-template-columns:1fr;}
+    .g-cards{grid-template-columns:repeat(2,1fr);}
+    .frames{padding:18px 10px; overflow-x:auto; flex-wrap:nowrap; justify-content:flex-start;}
+    .frames.trio{display:flex;}
+    .frame-label{max-width:300px; margin:0 auto;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ═══════════ HERO ═══════════ -->
+  <header class="hero">
+    <div class="eyebrow">TechNeHub Labs · Design Review</div>
+    <h1>DEA Web Viewer <span class="dim">— UX Improvement Plan</span></h1>
+    <p class="lede">A visual strategy for making the metamodel viewer feel effortless on every screen:
+      navigation you can always reach, canvases that fit before you touch them, entry points that never dead-end,
+      and one consistent way to inspect anything. Responsive web design is treated as a requirement, not a phase.</p>
+    <div class="meta-row">
+      <span class="chip"><span class="dot"></span><b>Subject</b>&nbsp;technehub-labs.github.io/dea-web-viewer</span>
+      <span class="chip"><b>Version reviewed</b>&nbsp;1.0.0 (81 entities · 135 relationships)</span>
+      <span class="chip"><span class="dot red"></span><b>10 findings</b>&nbsp;· 3 P0</span>
+      <span class="chip"><span class="dot green"></span><b>5 strategies</b>&nbsp;· 3-phase roadmap</span>
+      <span class="chip"><b>Evidence</b>&nbsp;7 views · 5 viewports (390→2560)</span>
+    </div>
+  </header>
+
+  <!-- ═══════════ §1 AUDIT ═══════════ -->
+  <section id="audit">
+    <div class="sec-head"><span class="sec-num">§1</span><h2>Current state — what the evidence shows</h2></div>
+    <p class="sec-sub">Every finding below was reproduced live on the deployed site on 2026-11-23, at five viewport widths,
+      and cross-checked against the source (<code>src/App.tsx</code>, <code>src/components/*</code>, <code>src/lib/url-state.ts</code>).</p>
+
+    <div class="tscroll">
+    <table class="findings">
+      <tr><th>ID</th><th>Severity</th><th>Finding</th><th>Where</th></tr>
+      <tr><td class="id">F-01</td><td><span class="sev p0">P0</span></td><td><b>Two of seven views are unreachable by mouse.</b> The search combobox renders on top of the Coverage and Viewpoints tabs at 1440, 1920 and 2560 px. DOM rects confirm the overlap: at 2560 the search box spans x&nbsp;1414–1606 while Coverage sits at 1438–1546.</td><td><code>Header.tsx</code></td></tr>
+      <tr><td class="id">F-02</td><td><span class="sev p0">P0</span></td><td><b>No responsive layout below desktop.</b> At 390 px the header stacks to ~250 px tall, all tabs but one are truncated away, and a “Press Esc” hint (a keyboard idiom) floats over a touch screen. There is no way to reach Interactive, Matrix, Traceability, Coverage or Viewpoints.</td><td><code>index.css</code>, <code>Header.tsx</code></td></tr>
+      <tr><td class="id">F-03</td><td><span class="sev p0">P0</span></td><td><b>Deep links don’t restore the view.</b> <code>?view=interactive</code> is parsed but never applied — <code>activeView</code> is initialised to <code>'canonical-svg'</code> and the URL is then rewritten back. Every shared link lands on the same default screen.</td><td><code>App.tsx:65</code> vs <code>App.tsx:99–101</code>, <code>url-state.ts</code></td></tr>
+      <tr><td class="id">F-04</td><td><span class="sev p1">P1</span></td><td><b>The first screen is blank.</b> Canonical SVG loads at 100 % zoom with the diagram off-viewport; “Reset view” restores the same off-screen state instead of fitting content. First impression = white void (reproduced at 1440 and 1920).</td><td><code>CanonicalSvgView.tsx</code></td></tr>
+      <tr><td class="id">F-05</td><td><span class="sev p1">P1</span></td><td><b>Traceability opens on a dead end.</b> Random defaults (Collaboration Agreement → Threshold) produce “No paths found” as the first-run experience, with no presets, examples, or next actions.</td><td><code>TraceabilityPathFinder.tsx</code></td></tr>
+      <tr><td class="id">F-06</td><td><span class="sev p1">P1</span></td><td><b>Interactive canvas drowns in always-on labels.</b> Edge names + multiplicity chips render at every zoom level; cards clip at the right edge; the layer legend overlaps cards. Dense, but unreadable.</td><td><code>InteractiveCanvas.tsx</code></td></tr>
+      <tr><td class="id">F-07</td><td><span class="sev p2">P2</span></td><td><b>A permanent “Press Esc to close the entity drawer” hint</b> floats top-right even when no drawer is open, on every view, including touch devices.</td><td><code>App.tsx</code> header area</td></tr>
+      <tr><td class="id">F-08</td><td><span class="sev p2">P2</span></td><td><b>Inconsistent inspection flow.</b> Selecting from Matrix jumps to Interactive; from Catalogs jumps to Canonical SVG; the drawer exists only as a desktop right panel — no mobile equivalent.</td><td><code>App.tsx</code> onSelectEntity handlers</td></tr>
+      <tr><td class="id">F-09</td><td><span class="sev p2">P2</span></td><td><b>Matrix relationship cards clip</b> below the fold with small click targets; the cross-layer matrix itself is the strongest view and deserves promotion.</td><td><code>MetamodelMatrix.tsx</code></td></tr>
+      <tr><td class="id">F-10</td><td><span class="sev p2">P2</span></td><td><b>Coverage is hidden yet strong.</b> The best “programme health” dashboard in the suite is unreachable by clicking (F-01) and its status bar reads as an alarm (60 planned in red).</td><td><code>CoverageDashboard.tsx</code></td></tr>
+    </table>
+    </div>
+
+    <h4 class="step-title">Evidence gallery</h4>
+    <div class="ev-grid">
+      <figure class="ev"><img src="assets/01-canonical-blank-1440.png" alt="Canonical SVG view blank at 1440" /><figcaption><b>F-04 · The landing screen is a white void</b><span class="tag">Canonical SVG · 1440×900 · as loaded, 100 % zoom</span></figcaption></figure>
+      <figure class="ev"><img src="assets/10-mobile-390.png" alt="Mobile 390px: stacked header, one truncated tab" /><figcaption><b>F-02 · Mobile has effectively no navigation</b><span class="tag">390×844 · header consumes ~250 px · “Press Esc” on touch</span></figcaption></figure>
+      <figure class="ev"><img src="assets/03-interactive-1440.png" alt="Interactive canvas dense with labels" /><figcaption><b>F-06 · Label soup on the Interactive canvas</b><span class="tag">Interactive · 1440×900 · 65 % zoom · legend overlaps cards</span></figcaption></figure>
+      <figure class="ev"><img src="assets/05-traceability-no-paths-1440.png" alt="Traceability first run shows No paths" /><figcaption><b>F-05 · First-run dead end</b><span class="tag">Traceability · 1440×900 · random defaults, zero guidance</span></figcaption></figure>
+      <figure class="ev"><img src="assets/07-canonical-blank-1920.png" alt="Canonical SVG blank even at 1920" /><figcaption><b>F-04 · Not a small-screen fluke</b><span class="tag">Canonical SVG · 1920×1080 · same blank canvas</span></figcaption></figure>
+      <figure class="ev"><img src="assets/08-coverage-2560.png" alt="Coverage dashboard captured at 2560" /><figcaption><b>F-10 · Strong content, hidden door</b><span class="tag">Coverage · 2560×1080 · reachable only via keyboard</span></figcaption></figure>
+    </div>
+
+    <div class="callout"><b>The responsiveness verdict:</b> today the viewer is a desktop-only tool whose desktop layout is itself broken
+      at common widths. F-01 + F-02 mean the same root cause — the header is a single non-wrapping flex row that lets the search box
+      paint over the tablist instead of the navigation reflowing. The strategies below therefore start with the shell (S1) before touching any canvas.</div>
+  </section>
+
+  <!-- ═══════════ §2 STRATEGIES ═══════════ -->
+  <section id="strategies">
+    <div class="sec-head"><span class="sec-num">§2</span><h2>Five strategies, each with a walkthrough</h2></div>
+    <p class="sec-sub">Each strategy pairs a problem (with its finding IDs) with mockups and a concrete user journey.
+      Mockups are schematic — real data shape, not real data — and every one is drawn at three device widths because responsiveness is part of the strategy, not a follow-up.</p>
+
+    <!-- ── S1 ── -->
+    <div class="strategy" id="s1">
+      <div class="strat-head"><span class="strat-badge">S1</span><h3>One shell, every screen — responsive app shell &amp; IA</h3></div>
+      <p class="strat-goal">Replace the single-row header with a shell that reflows by breakpoint: an icon rail on desktop/tablet,
+        a bottom tab bar on mobile, and a header that can never paint over navigation again. Fixes F-01, F-02, F-07.</p>
+      <div class="strat-meta">
+        <span>Fixes <b>F-01 · F-02 · F-07</b></span>
+        <span>Impact<b class="meter m-impact"><i></i></b></span>
+        <span>Effort<b class="meter m-effort-mid"><i></i></b></span>
+        <span>Code<b style="margin-left:6px">Header.tsx · index.css</b></span>
+      </div>
+      <div class="rule"></div>
+
+      <h4 class="step-title">Mockup — the shell at three breakpoints</h4>
+      <div class="frames trio">
+        <!-- desktop frame -->
+        <div>
+          <div class="frame" style="width:560px">
+            <div class="m-app" style="height:300px">
+              <div class="m-top">
+                <span class="m-brand"><span class="m-logo"></span>DEA Web Viewer</span>
+                <span class="mono" style="font-size:8px;color:#062a26;background:var(--teal);border-radius:99px;padding:1px 6px;font-weight:700">1.0.0</span>
+                <span class="m-search">Search entities…&nbsp;&nbsp;⌘K</span>
+                <span class="m-btn">PUML</span><span class="m-btn">JSON</span><span class="m-ic">⟲</span>
+              </div>
+              <div class="m-body">
+                <div class="m-rail">
+                  <div class="grp">EXPLORE</div>
+                  <div class="r-ic">⌂</div><div class="r-lb">HOME</div>
+                  <div class="r-ic on">◉</div><div class="r-lb">CANVAS</div>
+                  <div class="r-ic">▦</div><div class="r-lb">MATRIX</div>
+                  <div class="grp">ANALYZE</div>
+                  <div class="r-ic">⇄</div><div class="r-lb">TRACE</div>
+                  <div class="r-ic">▤</div><div class="r-lb">COVER</div>
+                  <div class="grp">USE</div>
+                  <div class="r-ic">❑</div><div class="r-lb">CATALOG</div>
+                  <div class="r-ic">(layers)</div><div class="r-lb">VIEWS</div>
+                </div>
+                <div class="m-stage">
+                  <div class="fitbar">Fit <b>82 %</b> · + − ⟲</div>
+                  <div class="minimap"><i></i></div>
+                </div>
+              </div>
+              <div class="m-status"><span><b>81</b> entities</span><span><b>135</b> relationships</span><span style="margin-left:auto">synced from dea-metamodel@1.0.0</span></div>
+            </div>
+          </div>
+          <div class="frame-label">Desktop ≥1180 — icon rail groups 7 views · single-row header · status bar absorbs counts</div>
+        </div>
+        <!-- tablet frame -->
+        <div>
+          <div class="frame" style="width:330px">
+            <div class="m-app" style="height:300px">
+              <div class="m-top">
+                <span class="m-brand"><span class="m-logo"></span>DEA</span>
+                <span class="m-search">Search…</span>
+                <span class="m-ic">⋯</span>
+              </div>
+              <div class="m-body">
+                <div class="m-rail" style="width:38px">
+                  <div class="r-ic">⌂</div><div class="r-ic on">◉</div><div class="r-ic">▦</div><div class="r-ic">⇄</div><div class="r-ic">▤</div><div class="r-ic">❑</div><div class="r-ic">◫</div>
+                </div>
+                <div class="m-stage"><div class="fitbar">Fit <b>64 %</b></div></div>
+              </div>
+              <div class="m-status"><span><b>81</b> ent · <b>135</b> rel</span></div>
+            </div>
+          </div>
+          <div class="frame-label">Tablet 768–1179 — same rail, tighter; actions collapse into ⋯</div>
+        </div>
+        <!-- mobile frame -->
+        <div>
+          <div class="frame" style="width:190px">
+            <div class="m-app" style="height:300px">
+              <div class="m-top">
+                <span class="m-brand"><span class="m-logo"></span>DEA</span>
+                <span class="m-ic teal">⌕</span><span class="m-ic">⋯</span>
+              </div>
+              <div class="m-body">
+                <div class="m-stage">
+                  <div class="fitbar" style="top:8px;right:8px">Fit <b>41 %</b></div>
+                </div>
+              </div>
+              <div class="m-bottomnav">
+                <span class="bn"><i></i>Home</span>
+                <span class="bn on"><i></i>Canvas</span>
+                <span class="bn"><i></i>Matrix</span>
+                <span class="bn"><i></i>Trace</span>
+                <span class="bn more"><i></i>More</span>
+              </div>
+            </div>
+          </div>
+          <div class="frame-label">Mobile &lt;768 — bottom tab bar + “More” sheet · search becomes full-screen overlay</div>
+        </div>
+      </div>
+
+      <h4 class="step-title">Walkthrough — “Can I reach every view with one tap, at any width?”</h4>
+      <ol class="walk">
+        <li>On a 1440 laptop, Emma opens the viewer. The seven views live in a left icon rail grouped <b>Explore / Analyze / Use</b> — nothing can overlap them because navigation owns its own column, not a flex row it has to fight for. <span class="where">fixes F-01 · Header.tsx → shell component</span></li>
+        <li>She taps <b>Coverage</b> — first click, no keyboard tricks. The rail highlights; the content area renders the dashboard. <span class="where">reaches the view hidden today (F-01/F-10)</span></li>
+        <li>She narrows the window to 390 px. The rail folds into a bottom tab bar (4 views + More). The header shrinks to one 48 px row: brand, search icon, overflow. Nothing stacks to 250 px. <span class="where">fixes F-02 · breakpoint CSS</span></li>
+        <li>She taps <b>More</b> → a bottom sheet lists all views with descriptions; tapping Catalogs switches views. Search opens as a full-screen overlay with big touch targets. <span class="where">mobile nav parity</span></li>
+        <li>The “Press Esc to close the entity drawer” hint is gone from the chrome — every panel carries its own visible ✕; keyboard hints appear only on devices with keyboards. <span class="where">fixes F-07</span></li>
+      </ol>
+    </div>
+
+    <!-- ── S2 ── -->
+    <div class="strategy" id="s2">
+      <div class="strat-head"><span class="strat-badge">S2</span><h3>Show the shape first — fit-on-load &amp; progressive disclosure</h3></div>
+      <p class="strat-goal">Every canvas computes its viewBox from content on load and on resize, then reveals detail by zoom:
+        structure at a distance, names mid-range, attributes up close, edge labels only on demand. Fixes F-04, F-06.</p>
+      <div class="strat-meta">
+        <span>Fixes <b>F-04 · F-06</b></span>
+        <span>Impact<b class="meter m-impact"><i></i></b></span>
+        <span>Effort<b class="meter m-effort"><i></i></b></span>
+        <span>Code<b style="margin-left:6px">CanonicalSvgView.tsx · InteractiveCanvas.tsx</b></span>
+      </div>
+      <div class="rule"></div>
+
+      <h4 class="step-title">Mockup — zoom ladder: what you see at each altitude</h4>
+      <div class="ladder">
+        <div class="rung">
+          <svg viewBox="0 0 300 132" width="100%" style="display:block;background:#0a0f15">
+            <rect x="14" y="10" width="272" height="26" rx="6" fill="rgba(45,212,191,.10)" stroke="rgba(45,212,191,.35)"/>
+            <text x="22" y="27" font-size="8" fill="#2dd4bf" font-family="monospace">L1 · ECOSYSTEM &amp; VALUE NETWORK</text>
+            <circle cx="52" cy="23" r="4" fill="#2dd4bf"/><circle cx="120" cy="23" r="4" fill="#2dd4bf"/><circle cx="190" cy="23" r="4" fill="#2dd4bf"/><circle cx="252" cy="23" r="4" fill="#2dd4bf"/>
+            <rect x="14" y="44" width="272" height="26" rx="6" fill="rgba(245,176,76,.08)" stroke="rgba(245,176,76,.3)"/>
+            <text x="22" y="61" font-size="8" fill="#f5b04c" font-family="monospace">L2 · STRATEGIC &amp; GOVERNANCE</text>
+            <circle cx="70" cy="57" r="4" fill="#f5b04c"/><circle cx="150" cy="57" r="4" fill="#f5b04c"/><circle cx="230" cy="57" r="4" fill="#f5b04c"/>
+            <rect x="14" y="78" width="272" height="26" rx="6" fill="rgba(94,176,240,.08)" stroke="rgba(94,176,240,.3)"/>
+            <text x="22" y="95" font-size="8" fill="#5eb0f0" font-family="monospace">L3 · BUSINESS OPERATING MODEL</text>
+            <circle cx="44" cy="91" r="4" fill="#5eb0f0"/><circle cx="100" cy="91" r="4" fill="#5eb0f0"/><circle cx="160" cy="91" r="4" fill="#5eb0f0"/><circle cx="240" cy="91" r="4" fill="#5eb0f0"/>
+            <rect x="14" y="112" width="272" height="14" rx="6" fill="rgba(167,139,250,.07)" stroke="rgba(167,139,250,.25)"/>
+            <text x="22" y="122" font-size="7" fill="#a78bfa" font-family="monospace">L4 · DIGITAL &amp; INTELLIGENCE</text>
+          </svg>
+          <div class="cap"><span>Structure</span><span><b>&lt;60 %</b> · layer bands + entity dots</span></div>
+        </div>
+        <div class="rung">
+          <svg viewBox="0 0 300 132" width="100%" style="display:block;background:#0a0f15">
+            <rect x="14" y="8" width="80" height="22" rx="5" fill="#12202b" stroke="#2c3e52"/>
+            <text x="22" y="22" font-size="8" fill="#dbe7f0">Ecosystem Actor</text>
+            <rect x="140" y="8" width="86" height="22" rx="5" fill="#12202b" stroke="#2c3e52"/>
+            <text x="148" y="22" font-size="8" fill="#dbe7f0">Value Exchange</text>
+            <path d="M94 19 L140 19" stroke="#2dd4bf" stroke-width="1.4" fill="none"/>
+            <rect x="14" y="52" width="80" height="22" rx="5" fill="#12202b" stroke="#2c3e52"/>
+            <text x="22" y="66" font-size="8" fill="#dbe7f0">Stakeholder</text>
+            <rect x="140" y="52" width="86" height="22" rx="5" fill="#12202b" stroke="#2c3e52"/>
+            <text x="148" y="66" font-size="8" fill="#dbe7f0">Business Capab.</text>
+            <path d="M94 63 C120 63 116 42 140 40" stroke="#5c7086" stroke-dasharray="3 3" fill="none"/>
+            <rect x="14" y="96" width="80" height="22" rx="5" fill="#12202b" stroke="#2c3e52"/>
+            <text x="22" y="110" font-size="8" fill="#dbe7f0">Journey Point</text>
+            <path d="M94 107 C124 107 112 70 140 66" stroke="#5c7086" stroke-dasharray="3 3" fill="none"/>
+          </svg>
+          <div class="cap"><span>Names</span><span><b>60–130 %</b> · entities + clean edges, no edge labels</span></div>
+        </div>
+        <div class="rung">
+          <svg viewBox="0 0 300 132" width="100%" style="display:block;background:#0a0f15">
+            <rect x="14" y="8" width="128" height="54" rx="6" fill="#12202b" stroke="#2dd4bf"/>
+            <text x="22" y="22" font-size="8.5" fill="#2dd4bf" font-weight="bold">Ecosystem Actor</text>
+            <text x="22" y="36" font-size="7.5" fill="#8fa3b5" font-family="monospace">+id : string</text>
+            <text x="22" y="48" font-size="7.5" fill="#8fa3b5" font-family="monospace">+name : string</text>
+            <text x="22" y="58" font-size="7" fill="#5c7086" font-family="monospace">Inspect →</text>
+            <rect x="176" y="8" width="112" height="54" rx="6" fill="#12202b" stroke="#2c3e52"/>
+            <text x="184" y="22" font-size="8.5" fill="#dbe7f0">Value Exchange</text>
+            <text x="184" y="36" font-size="7.5" fill="#8fa3b5" font-family="monospace">+id : string</text>
+            <text x="184" y="48" font-size="7.5" fill="#8fa3b5" font-family="monospace">+name : string</text>
+            <path d="M142 35 L176 35" stroke="#2dd4bf" stroke-width="1.4"/>
+            <g><rect x="128" y="66" width="88" height="15" rx="7" fill="#0e161e" stroke="#2c3e52"/>
+            <text x="134" y="77" font-size="7.5" fill="#f5b04c" font-family="monospace">governs [0..A]</text></g>
+            <text x="14" y="112" font-size="7.5" fill="#5c7086" font-family="monospace">↑ edge label appears on hover / &gt;130 % zoom</text>
+          </svg>
+          <div class="cap"><span>Attributes</span><span><b>&gt;130 %</b> · full cards + labels on demand</span></div>
+        </div>
+      </div>
+
+      <h4 class="step-title">Mockup — the same canvas, before and after fit-on-load</h4>
+      <div class="frames">
+        <div>
+          <div class="frame" style="width:360px">
+            <div class="m-app" style="height:200px">
+              <div class="m-body"><div class="m-stage" style="background:#ffffff">
+                <div style="position:absolute;inset:auto -30px -60px -30px;height:120px;border:1.5px dashed rgba(45,212,191,.7);border-radius:6px;opacity:.5"></div>
+                <div class="fitbar">100 % · off-screen</div>
+              </div></div>
+            </div>
+          </div>
+          <div class="frame-label">Today — F-04: diagram off-viewport</div>
+        </div>
+        <div>
+          <div class="frame" style="width:360px">
+            <div class="m-app" style="height:200px">
+              <div class="m-body"><div class="m-stage">
+                <svg viewBox="0 0 360 200" width="100%" height="100%" style="display:block">
+                  <rect x="24" y="22" width="312" height="34" rx="7" fill="rgba(45,212,191,.10)" stroke="rgba(45,212,191,.35)"/>
+                  <text x="34" y="43" font-size="9" fill="#2dd4bf" font-family="monospace">L1 · ECOSYSTEM</text>
+                  <rect x="44" y="30" width="52" height="18" rx="4" fill="#12202b" stroke="#2c3e52"/><text x="50" y="43" font-size="7.5" fill="#dbe7f0">Actor</text>
+                  <rect x="120" y="30" width="70" height="18" rx="4" fill="#12202b" stroke="#2c3e52"/><text x="126" y="43" font-size="7.5" fill="#dbe7f0">Platform</text>
+                  <rect x="220" y="30" width="60" height="18" rx="4" fill="#12202b" stroke="#2c3e52"/><text x="226" y="43" font-size="7.5" fill="#dbe7f0">Stakeholder</text>
+                  <rect x="24" y="76" width="312" height="34" rx="7" fill="rgba(245,176,76,.08)" stroke="rgba(245,176,76,.3)"/>
+                  <text x="34" y="97" font-size="9" fill="#f5b04c" font-family="monospace">L2 · GOVERNANCE</text>
+                  <rect x="70" y="84" width="62" height="18" rx="4" fill="#12202b" stroke="#2c3e52"/><text x="76" y="97" font-size="7.5" fill="#dbe7f0">Control</text>
+                  <rect x="170" y="84" width="60" height="18" rx="4" fill="#12202b" stroke="#2c3e52"/><text x="176" y="97" font-size="7.5" fill="#dbe7f0">Decision</text>
+                  <path d="M96 48 L96 76 M200 48 L200 84" stroke="#5c7086" stroke-dasharray="3 3"/>
+                  <rect x="24" y="130" width="312" height="34" rx="7" fill="rgba(94,176,240,.08)" stroke="rgba(94,176,240,.3)"/>
+                  <text x="34" y="151" font-size="9" fill="#5eb0f0" font-family="monospace">L3 · OPERATING MODEL</text>
+                  <rect x="100" y="138" width="86" height="18" rx="4" fill="#12202b" stroke="#2c3e52"/><text x="106" y="151" font-size="7.5" fill="#dbe7f0">Business Process</text>
+                  <path d="M101 118 L143 130" stroke="#5c7086" stroke-dasharray="3 3"/>
+                </svg>
+                <div class="fitbar">Fit <b>78 %</b> · + − ⟲ ⤢</div>
+                <div class="minimap"><i></i></div>
+              </div></div>
+            </div>
+          </div>
+          <div class="frame-label">Proposed — whole model visible in one glance · minimap + zoom affordances</div>
+        </div>
+      </div>
+
+      <h4 class="step-title">Walkthrough — “What does this model look like?” answered in one second</h4>
+      <ol class="walk">
+        <li>Emma opens the viewer. Instead of a white void, the entire metamodel fits the viewport — six layer bands, 81 entity cards, edges without text. She sees the <em>shape</em> of the model before touching anything. <span class="where">fixes F-04 · viewBox = content bbox on load + resize</span></li>
+        <li>She zooms out to plan: bands and dots only (structure mode). Zooms to 100 %: entity names fade in. Zooms past 130 %: attributes and “Inspect” targets appear. Detail arrives as she earns it. <span class="where">fixes F-06 · semantic zoom tiers</span></li>
+        <li>She hovers an edge: only that edge lights up with its name and multiplicity chip; the rest dim. The always-on label soup is gone. <span class="where">fixes F-06 · hover-scoped labels</span></li>
+        <li>She resizes the window to half-screen: the canvas refits automatically — same behaviour on a tablet in portrait. <span class="where">responsive refit on ResizeObserver</span></li>
+        <li>On mobile, one finger pans, pinch zooms; at &lt;60 % the canvas switches to the structure tier automatically so the pinched-out view stays readable. <span class="where">touch + tier coupling</span></li>
+      </ol>
+    </div>
+
+    <!-- ── S3 ── -->
+    <div class="strategy" id="s3">
+      <div class="strat-head"><span class="strat-badge">S3</span><h3>Never a dead end — guided starts &amp; helpful empties</h3></div>
+      <p class="strat-goal">Every first-run and empty state offers a next action: a landing overview with guided starts,
+        traceability presets with auto-suggested connectable pairs, empty states written as invitations. Fixes F-05, supports F-04.</p>
+      <div class="strat-meta">
+        <span>Fixes <b>F-05 · F-04 (landing)</b></span>
+        <span>Impact<b class="meter m-impact-mid"><i></i></b></span>
+        <span>Effort<b class="meter m-effort"><i></i></b></span>
+        <span>Code<b style="margin-left:6px">TraceabilityPathFinder.tsx · new Overview components</b></span>
+      </div>
+      <div class="rule"></div>
+
+      <h4 class="step-title">Mockup — landing overview with guided starts</h4>
+      <div class="frames">
+        <div class="frame" style="width:640px">
+          <div class="m-app" style="height:280px">
+            <div class="m-top">
+              <span class="m-brand"><span class="m-logo"></span>DEA Web Viewer</span>
+              <span class="m-search">Search entities…&nbsp;⌘K</span>
+              <span class="m-btn">PUML</span><span class="m-btn">JSON</span>
+            </div>
+            <div class="m-body"><div class="m-stage">
+              <svg viewBox="0 0 640 150" width="100%" height="150" style="display:block;opacity:.9">
+                <rect x="30" y="16" width="580" height="26" rx="6" fill="rgba(45,212,191,.10)" stroke="rgba(45,212,191,.3)"/>
+                <text x="40" y="33" font-size="8" fill="#2dd4bf" font-family="monospace">L1 · ECOSYSTEM</text>
+                <rect x="30" y="58" width="580" height="26" rx="6" fill="rgba(245,176,76,.08)" stroke="rgba(245,176,76,.25)"/>
+                <text x="40" y="75" font-size="8" fill="#f5b04c" font-family="monospace">L2 · GOVERNANCE</text>
+                <rect x="30" y="100" width="580" height="26" rx="6" fill="rgba(94,176,240,.08)" stroke="rgba(94,176,240,.25)"/>
+                <text x="40" y="117" font-size="8" fill="#5eb0f0" font-family="monospace">L3 · OPERATING MODEL</text>
+              </svg>
+              <div class="g-cards" style="grid-template-columns:repeat(4,1fr)">
+                <div class="g-card"><div class="t"><i></i>Trace a value stream</div><div class="d">SO → Capability → Solution — watch the watcher run a live path</div></div>
+                <div class="g-card"><div class="t"><i style="background:var(--amber)"></i>Explore a layer</div><div class="d">Jump into L1…L6 with a pre-scoped canvas</div></div>
+                <div class="g-card"><div class="t"><i style="background:var(--violet)"></i>Find an entity</div><div class="d">81 entities · fuzzy search ⌘K</div></div>
+                <div class="g-card"><div class="t"><i style="background:var(--blue)"></i>Take a persona view</div><div class="d">CTO, Solution Architect, Data… curated scopes</div></div>
+              </div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:8px">Landing = fitted canvas + one row of guided starts · mobile: cards become a horizontal swipe row above the bottom nav</div>
+
+      <h4 class="step-title">Mockup — traceability that helps before it computes</h4>
+      <div class="frames">
+        <div class="frame" style="width:640px">
+          <div class="m-app" style="height:230px">
+            <div class="m-top"><span class="m-brand"><span class="m-logo"></span>Traceability</span><span class="m-search" style="max-width:220px">source → target</span></div>
+            <div class="m-body" style="flex-direction:column;padding:12px;gap:10px">
+              <div style="display:flex;gap:8px">
+                <span class="m-search" style="max-width:240px;color:var(--text);border-color:rgba(45,212,191,.4)">▼ Strategic Objective (L2)</span>
+                <span style="color:var(--teal);font-size:12px;align-self:center">⇄ swap</span>
+                <span class="m-search" style="max-width:240px;color:var(--text);border-color:rgba(245,176,76,.4)">▼ Solution Component (L5)</span>
+              </div>
+              <div class="presets">
+                <span class="preset on">Value stream → delivery</span><span class="preset">Governance → control</span><span class="preset">Data lineage</span><span class="preset">Persona favourites ▾</span>
+              </div>
+              <div class="path-chips">
+                <span class="pc src">SO · Strategic Objective</span><span class="pc-arrow">→</span>
+                <span class="pc mid">II · Investment Initiative</span><span class="pc-arrow">→</span>
+                <span class="pc mid">CAP · Business Capability</span><span class="pc-arrow">→</span>
+                <span class="pc mid">BC · Business Process</span><span class="pc-arrow">→</span>
+                <span class="pc dst">SC · Solution Component</span>
+              </div>
+              <div style="font-family:var(--mono);font-size:9px;color:var(--faint)">4 hops · shortest path · each chip is a link into the canvas with that entity selected</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:8px">Zero-path results render as “closest connectable pairs” suggestions instead of a bare “No paths found” (F-05)</div>
+
+      <h4 class="step-title">Walkthrough — “I don’t know the model yet — show me something that works”</h4>
+      <ol class="walk">
+        <li>Emma lands on the overview: fitted model behind, four guided starts in front. She taps <b>Trace a value stream</b>. <span class="where">fixes the F-04 first impression with action, not decoration</span></li>
+        <li>Traceability opens with the preset applied: source and target pre-filled from a known-good path. She hits Trace — a real path renders as clickable chips. Success on the first try. <span class="where">fixes F-05 · presets from highest-degree entity pairs</span></li>
+        <li>She experiments: picks a pair with no connection. Instead of “No paths found”, the empty state says so and offers <b>closest connectable pairs</b> as one-tap suggestions, plus ⇄ swap direction. <span class="where">helpful empties</span></li>
+        <li>Each path chip deep-links into the canvas with the entity selected and the path edges highlighted — trace becomes a tour. <span class="where">cross-view continuity (pairs with S4)</span></li>
+      </ol>
+    </div>
+
+    <!-- ── S4 ── -->
+    <div class="strategy" id="s4">
+      <div class="strat-head"><span class="strat-badge">S4</span><h3>One inspection loop — drawer, bottom sheet, “continue in…”</h3></div>
+      <p class="strat-goal">A single inspector component serves every view and every device: right drawer on desktop,
+        drag-handle bottom sheet on mobile, with consistent tabs (Overview / Relationships / Impact / Catalog) and
+        “continue in…” actions that keep context when switching views. Fixes F-07, F-08.</p>
+      <div class="strat-meta">
+        <span>Fixes <b>F-07 · F-08</b></span>
+        <span>Impact<b class="meter m-impact-mid"><i></i></b></span>
+        <span>Effort<b class="meter m-effort-mid"><i></i></b></span>
+        <span>Code<b style="margin-left:6px">EntityDrawer.tsx → Inspector (new)</b></span>
+      </div>
+      <div class="rule"></div>
+
+      <h4 class="step-title">Mockup — same inspector, two form factors</h4>
+      <div class="drawer-demo">
+        <div>
+          <div class="d-stage">
+            <svg viewBox="0 0 214 250" width="100%" height="100%" style="display:block;position:absolute;inset:0">
+              <circle cx="52" cy="60" r="9" fill="rgba(245,176,76,.25)" stroke="#f5b04c"/>
+              <text x="30" y="84" font-size="7" fill="#f5b04c" font-family="monospace">upstream</text>
+              <circle cx="96" cy="120" r="12" fill="rgba(167,139,250,.3)" stroke="#a78bfa" stroke-width="2"/>
+              <text x="76" y="146" font-size="7.5" fill="#a78bfa" font-family="monospace">selected</text>
+              <circle cx="140" cy="185" r="9" fill="rgba(45,212,191,.22)" stroke="#2dd4bf"/>
+              <circle cx="170" cy="210" r="7" fill="rgba(45,212,191,.22)" stroke="#2dd4bf"/>
+              <text x="120" y="232" font-size="7" fill="#2dd4bf" font-family="monospace">downstream</text>
+              <path d="M58 66 L88 112 M104 130 L134 178 M146 192 L165 205" stroke="#5c7086" stroke-dasharray="3 3"/>
+            </svg>
+            <div class="d-drawer">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <span class="d-title">Business Capability</span><span class="m-x">✕</span>
+              </div>
+              <div class="d-sub">CAP · L3 · existing · core</div>
+              <div class="d-tabs"><span class="d-tab on">Overview</span><span class="d-tab">Relations</span><span class="d-tab">Impact</span><span class="d-tab">Catalog</span></div>
+              <div class="d-row"><i class="i-sel"></i>Realises 4 solution components</div>
+              <div class="d-row"><i class="i-up"></i>2 upstream inputs (amber)</div>
+              <div class="d-row"><i class="i-dn"></i>5 downstream consumers (teal)</div>
+              <div class="d-cta"><span class="b b-pri">Trace impact</span><span class="b b-sec">In Matrix</span></div>
+            </div>
+          </div>
+          <div class="frame-label" style="padding-top:8px">Desktop — right drawer · tabs · impact legend inline · “continue in…” actions</div>
+        </div>
+        <div>
+          <div class="sheet-stage">
+            <svg viewBox="0 0 230 250" width="100%" height="100%" style="display:block">
+              <circle cx="70" cy="70" r="10" fill="rgba(167,139,250,.3)" stroke="#a78bfa" stroke-width="2"/>
+              <circle cx="140" cy="110" r="8" fill="rgba(45,212,191,.22)" stroke="#2dd4bf"/>
+              <path d="M78 76 L132 104" stroke="#5c7086" stroke-dasharray="3 3"/>
+            </svg>
+            <div class="m-sheet">
+              <div class="m-grab"></div>
+              <div class="m-shead"><span class="t">Business Capability <span style="font-family:var(--mono);font-size:8px;color:var(--faint)">CAP · L3</span></span><span class="m-x">✕</span></div>
+              <div class="m-srow"><i class="i-up"></i>2 upstream · <i class="i-dn" style="margin-left:4px"></i>5 downstream</div>
+              <div class="m-srow" style="justify-content:center;gap:7px;white-space:nowrap"><span class="mono" style="color:var(--teal);font-size:9px">Trace</span><span style="color:var(--line2)">|</span><span class="mono" style="font-size:9px">Matrix</span><span style="color:var(--line2)">|</span><span class="mono" style="font-size:9px">Catalog ↗</span></div>
+              <div style="text-align:center;font-family:var(--mono);font-size:7.5px;color:var(--faint);margin-top:6px">↑ drag handle to expand full sheet</div>
+            </div>
+          </div>
+          <div class="frame-label" style="padding-top:8px">Mobile — bottom sheet with drag handle · half-expand peek, full-expand detail</div>
+        </div>
+      </div>
+
+      <h4 class="step-title">Walkthrough — “I clicked an entity — now what?”</h4>
+      <ol class="walk">
+        <li>On desktop, Emma clicks <b>Business Capability</b> on the canvas. The drawer opens with Overview: coordinates, layer, status — and an impact legend that matches the canvas colours (amber upstream, teal downstream). No hunting for a legend. <span class="where">fixes F-08 (consistency)</span></li>
+        <li>She taps <b>Impact</b>: BFS trace runs; canvas highlights; the drawer lists counts per hop. <span class="where">replaces today’s per-canvas toggle</span></li>
+        <li>She taps <b>In Matrix</b>: the matrix opens scrolled to the row/column pair involving this entity. Context survives the jump — same entity, new lens. <span class="where">consistent “continue in…” everywhere (fixes F-08)</span></li>
+        <li>She narrows to her phone, taps the same entity: the bottom sheet peeks with title + counts; a drag expands to the full inspector. Same tabs, touch-sized. <span class="where">mobile parity</span></li>
+        <li>The floating “Press Esc” hint no longer exists; ✕ and drag-dismiss are the closers, Esc still works where keyboards exist. <span class="where">fixes F-07</span></li>
+      </ol>
+    </div>
+
+    <!-- ── S5 ── -->
+    <div class="strategy" id="s5">
+      <div class="strat-head"><span class="strat-badge">S5</span><h3>URLs that work, personas that travel — deep links &amp; the viewpoints gallery</h3></div>
+      <p class="strat-goal">Make the URL a trustworthy state container (fix the <code>?view=</code> hydration bug first),
+        then promote Viewpoints from a buried tab to persona landing pages with previews and one-tap sharing. Fixes F-03, F-10.</p>
+      <div class="strat-meta">
+        <span>Fixes <b>F-03 · F-10</b></span>
+        <span>Impact<b class="meter m-impact"><i></i></b></span>
+        <span>Effort<b class="meter m-effort"><i></i></b></span>
+        <span>Code<b style="margin-left:6px">App.tsx:65 · url-state.ts · ViewpointGenerator.tsx</b></span>
+      </div>
+      <div class="rule"></div>
+
+      <h4 class="step-title">Mockup — viewpoints as previewable, shareable persona pages</h4>
+      <div class="vp-grid">
+        <div class="vp-card">
+          <div class="vp-prev">
+            <svg viewBox="0 0 200 86" width="100%" height="100%">
+              <rect x="14" y="12" width="172" height="16" rx="4" fill="rgba(245,176,76,.14)" stroke="rgba(245,176,76,.4)"/>
+              <rect x="14" y="34" width="110" height="16" rx="4" fill="rgba(245,176,76,.10)" stroke="rgba(245,176,76,.3)"/>
+              <rect x="14" y="56" width="60" height="16" rx="4" fill="#12202b" stroke="#2c3e52"/>
+              <path d="M40 28 L40 34 M70 50 L70 56" stroke="#5c7086" stroke-dasharray="3 3"/>
+            </svg>
+            <span class="vp-count">11 entities</span>
+          </div>
+          <div class="vp-body">
+            <div class="t">Business Analyst</div>
+            <div class="d">Operating model: capabilities, processes, services and the business objects they exchange. L1–L3 business profile.</div>
+            <div class="vp-row"><span class="b b-pri">Apply</span><span class="b b-sec">⧉ Copy link</span></div>
+          </div>
+        </div>
+        <div class="vp-card">
+          <div class="vp-prev">
+            <svg viewBox="0 0 200 86" width="100%" height="100%">
+              <rect x="14" y="12" width="172" height="16" rx="4" fill="rgba(167,139,250,.14)" stroke="rgba(167,139,250,.4)"/>
+              <rect x="14" y="34" width="130" height="16" rx="4" fill="rgba(167,139,250,.10)" stroke="rgba(167,139,250,.3)"/>
+              <rect x="14" y="56" width="86" height="16" rx="4" fill="#12202b" stroke="#2c3e52"/>
+              <path d="M40 28 L40 34 M96 50 L96 56" stroke="#5c7086" stroke-dasharray="3 3"/>
+            </svg>
+            <span class="vp-count">2 entities</span>
+          </div>
+          <div class="vp-body">
+            <div class="t">CTO</div>
+            <div class="d">Technology landscape: platforms, infrastructure, integration, the AI/automation surface. L4–L5 + governance profile.</div>
+            <div class="vp-row"><span class="b b-pri">Apply</span><span class="b b-sec">⧉ Copy link</span></div>
+          </div>
+        </div>
+        <div class="vp-card">
+          <div class="vp-prev">
+            <svg viewBox="0 0 200 86" width="100%" height="100%">
+              <rect x="14" y="12" width="172" height="16" rx="4" fill="rgba(94,176,240,.14)" stroke="rgba(94,176,240,.4)"/>
+              <rect x="14" y="34" width="96" height="16" rx="4" fill="rgba(94,176,240,.10)" stroke="rgba(94,176,240,.3)"/>
+              <rect x="14" y="56" width="120" height="16" rx="4" fill="#12202b" stroke="#2c3e52"/>
+              <path d="M40 28 L40 34 M60 50 L60 56" stroke="#5c7086" stroke-dasharray="3 3"/>
+            </svg>
+            <span class="vp-count">8 entities</span>
+          </div>
+          <div class="vp-body">
+            <div class="t">Solution Architect</div>
+            <div class="d">OpenDEA Core anchors plus application components, system functions and integration interfaces.</div>
+            <div class="vp-row"><span class="b b-pri">Apply</span><span class="b b-sec">⧉ Copy link</span></div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;font-family:var(--mono);font-size:10.5px;color:var(--faint);margin:8px 0 4px">Each card previews its scope (mini-canvas thumbnail) · Apply = deep link · Copy link = shareable URL that actually restores the view once F-03 is fixed</div>
+
+      <h4 class="step-title">Walkthrough — “share what I’m seeing, exactly”</h4>
+      <ol class="walk">
+        <li>Emma filters the canvas to L2 + L4 and selects an entity, then hits <b>⧉ Copy link</b>. The URL carries <code>view / layers / membership / entity / q</code> — and, after the F-03 fix, a colleague opening it lands on the <em>same view, same filters, same selection</em>. Today they’d land on Canonical SVG with the URL silently rewritten. <span class="where">fixes F-03 · App.tsx:65 hydration + popstate sync</span></li>
+        <li>She opens <b>Viewpoints</b> — reachable in one click from the rail (S1). Cards now show a mini preview of each persona’s scope, so choosing is visual, not textual guesswork. <span class="where">fixes F-10’s “strong content, hidden door”</span></li>
+        <li>She applies <b>Business Analyst</b>: layers + membership snap to the preset, URL updates, and the guided starts (S3) re-rank to her persona’s likely tasks. <span class="where">persona-aware landing</span></li>
+        <li>She pastes a viewpoint link into the team wiki as an <code>&lt;iframe&gt;</code> with <code>?embed=1</code>: the viewer renders chrome-less — just the canvas and a tiny attribution bar. <span class="where">optional embed mode, phase 3</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═══════════ §3 RESPONSIVE BLUEPRINT ═══════════ -->
+  <section id="responsive">
+    <div class="sec-head"><span class="sec-num">§3</span><h2>Responsive blueprint — component behaviour by breakpoint</h2></div>
+    <p class="sec-sub">The contract every component must honour. This is the acceptance checklist for “works as responsive web design”.</p>
+    <div class="tscroll">
+    <table class="bp">
+      <tr><th>Component</th><th>&lt;768 mobile</th><th>768–1179 tablet</th><th>≥1180 desktop</th></tr>
+      <tr><td>Navigation</td><td><b>Bottom tab bar</b> (4 + More sheet); More lists all 7 views</td><td><b>Icon rail</b>, 56 px, labels on long-press</td><td><b>Icon rail + labels</b>, grouped Explore/Analyze/Use</td></tr>
+      <tr><td>Header</td><td>One 48 px row: brand · search icon · ⋯ overflow</td><td>Brand · inline search · ⋯</td><td>Brand · full search · PUML/JSON/Reset</td></tr>
+      <tr><td>Search</td><td>Full-screen overlay, ≥44 px rows</td><td>Inline field</td><td>Inline field + ⌘K palette</td></tr>
+      <tr><td>Filter bars (layers/membership)</td><td>Collapsed into a <b>Filters</b> button with active-count badge; opens sheet</td><td>Horizontally scrollable chip rows</td><td>Full chip rows (today’s pattern, kept)</td></tr>
+      <tr><td>Canvas</td><td>Fit-on-load; pinch zoom; structure tier &lt;60 %; floating toolbar bottom-right</td><td>Fit-on-load; toolbar bottom-right</td><td>Fit-on-load; minimap; toolbar top-right</td></tr>
+      <tr><td>Matrix</td><td>Sticky first column, horizontal scroll with edge-fade hint</td><td>Sticky first column</td><td>Full table</td></tr>
+      <tr><td>Entity inspector</td><td><b>Bottom sheet</b>, drag handle, peek → full</td><td>Right drawer 320 px</td><td>Right drawer 380 px</td></tr>
+      <tr><td>Coverage dashboard</td><td>KPI cards 1-col; status bar segments ≥8 px with legend below</td><td>KPI 2-col</td><td>KPI 5-col (kept, widened)</td></tr>
+      <tr><td>Catalogs grid</td><td>1-col cards; description clamped to 3 lines with “more”</td><td>2-col</td><td>4-col (kept)</td></tr>
+      <tr><td>Keyboard hints</td><td><b>Hidden</b> (pointer:coarse media query)</td><td>Hidden on touch</td><td>Shown as today</td></tr>
+      <tr><td>Deep links</td><td colspan="3">All widths: URL is restored on load (<b>view, entity, layers, membership, q</b>) and on back/forward (popstate). Sharing = state.</td></tr>
+    </table>
+    </div>
+    <div class="callout amber"><b>Non-negotiables:</b> 7/7 views clickable at every width from 360 px to 2560 px · no horizontal page scroll on mobile ·
+      every canvas fits its content on load · touch targets ≥44 px · the URL never lies about the state it will restore.</div>
+  </section>
+
+  <!-- ═══════════ §4 ROADMAP ═══════════ -->
+  <section id="roadmap">
+    <div class="sec-head"><span class="sec-num">§4</span><h2>Roadmap — three phases, biggest blockers first</h2></div>
+    <p class="sec-sub">Sequenced so each phase ships value on its own and unblocks the next. Phase 0 is mostly deletion and small fixes.</p>
+    <div class="phases">
+      <div class="phase">
+        <span class="ph-tag">PHASE 0</span>
+        <h4>Stop the bleeding</h4>
+        <div class="ph-sub">days · no new components</div>
+        <ul>
+          <li><b>Deep-link hydration</b> — apply <code>view</code> + <code>q</code> on boot <span class="fid">F-03 · App.tsx</span></li>
+          <li><b>Fit-on-load</b> for Canonical SVG; Reset = fit <span class="fid">F-04 · CanonicalSvgView.tsx</span></li>
+          <li><b>Header overlap fix</b> — nav can never be painted over (min-width + z-index contract) <span class="fid">F-01 · Header.tsx</span></li>
+          <li><b>Remove the permanent Esc hint</b> <span class="fid">F-07</span></li>
+          <li><b>Traceability defaults</b> — open with a known-good preset instead of random pair <span class="fid">F-05</span></li>
+        </ul>
+      </div>
+      <div class="phase p2">
+        <span class="ph-tag">PHASE 1</span>
+        <h4>Responsive shell + inspection loop</h4>
+        <div class="ph-sub">1–2 weeks</div>
+        <ul>
+          <li><b>S1 shell</b> — rail + bottom nav + breakpoint contract <span class="fid">F-01 · F-02</span></li>
+          <li><b>S4 inspector</b> — unified drawer/bottom sheet, “continue in…” <span class="fid">F-08</span></li>
+          <li><b>S3 guided starts</b> — presets, suggestions, landing cards <span class="fid">F-05</span></li>
+          <li><b>Filter bars</b> — scrollable chips → Filters sheet on mobile</li>
+        </ul>
+      </div>
+      <div class="phase p3">
+        <span class="ph-tag">PHASE 2</span>
+        <h4>Canvas craft + persona surfaces</h4>
+        <div class="ph-sub">2–4 weeks</div>
+        <ul>
+          <li><b>S2 semantic zoom</b> — tier system + hover-scoped edge labels <span class="fid">F-06</span></li>
+          <li><b>Minimap + resize refit</b> across all canvas views</li>
+          <li><b>S5 viewpoints gallery</b> — previews, copy-link, persona landing <span class="fid">F-10</span></li>
+          <li><b>Embed mode</b> <code>?embed=1</code> for docs/wikis</li>
+          <li><b>Matrix upgrades</b> — sticky column, mobile scroll fade <span class="fid">F-09</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ §5 METRICS ═══════════ -->
+  <section id="metrics">
+    <div class="sec-head"><span class="sec-num">§5</span><h2>How we’ll know it worked</h2></div>
+    <p class="sec-sub">Acceptance is measurable, and every metric is checkable with the same scripted-browser pass used for this audit.</p>
+    <div class="metrics">
+      <div class="metric"><div class="k">7 / 7</div><div class="n">views clickable at every tested width (390 · 768 · 1180 · 1440 · 1920 · 2560) — today: 4/7 at 1440, 5/7 at 1920+</div></div>
+      <div class="metric"><div class="k">&lt; 1 s</div><div class="n">time to see the whole model after load (fit-on-load) — today: never, without manual zoom-out</div></div>
+      <div class="metric"><div class="k">100 %</div><div class="n">shared deep links restore view + filters + selection — today: 0 % (view param ignored)</div></div>
+      <div class="metric"><div class="k">3 / 3</div><div class="n">first-run journeys succeed without reading docs: open · trace a path · open an entity on mobile</div></div>
+      <div class="metric"><div class="k">≥ 44 px</div><div class="n">all touch targets on coarse pointers; zero keyboard-only affordances on touch</div></div>
+      <div class="metric"><div class="k">0</div><div class="n">overlapping interactive elements in the header at any width (DOM-rect checked in CI)</div></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>DEA Web Viewer — UX Improvement Plan · prepared 2026-11-23 · evidence captured live from v1.0.0</span>
+    <span><a href="https://technehub-labs.github.io/dea-web-viewer/">live viewer ↗</a> · <a href="https://github.com/technehub-labs/dea-web-viewer">repo ↗</a> · mockups are schematic, not implementations</span>
+  </footer>
+</div>
+</body>
+</html>
